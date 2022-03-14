@@ -1,0 +1,10 @@
+PROJECT : "project1"
+
+# UID : ["UID-119016-21", "UID-119136-20", "UID-119153-23", "UID-119178-075", "UID-119196-9", "UID-151680-76", "UID-151725-13", "UID-151761-011", "UID-80601-3",
+
+species : "Human" # species: Human, Mouse
+lowread : 300000
+binSize : 500 # single value only, required
+WALLTIME : 40320 # 40320
+HMMCOPY: true
+PENALTY: "MBIC" # MBIC, BIC, AIC{config[PENALTY]} {config[SPLIT_PER_CHROMOSOME]}
