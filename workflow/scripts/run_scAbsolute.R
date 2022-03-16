@@ -99,7 +99,6 @@ max_states=9
 ## Save data for later processing
 if(!dir.exists(dirname(RESULTPATH))) dir.create(dirname(RESULTPATH), recursive = TRUE)
 hmm_path = base::dirname(RESULTPATH)
-
 # ploidy description, example how to specify this on a per cell level
 # cellnames = c("UID-10X-COLO829_SLX-00000_000326_ATGTGTGCAAAGTAAC-1", "UID-10X-Fibroblast-cell_SLX-00000_000277_CACACCTTCACACGTA-1")
 # NOTE that order has to be correct, minPloidy entry 1 is cell one, entry 2 is cell 2, ...

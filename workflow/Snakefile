@@ -1,0 +1,20 @@
+"""
+Author: M. P Schneider
+Affiliation: Cancer Research UK, CI
+Program: Workflow for single cell or sWGS DNAseq absolute copy number calling - unknown ploidy
+Date: April 2020
+"""
+import pandas as pd
+import os
+configfile: "config/config.yaml"
+assert(isinstance(config["binSize"], int))
+df = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str})
+SAMPLE_FILES = df["sample_name"].tolist()
+IMAGE = config["scAbsolute_img"]
+
+include: "rules/qc.smk"
+include: "rules/scale_scAbsolute.smk"
+include: "rules/combine.smk"
+rule all:
+    input:
+        "results/scale/" + str(config["binSize"]) + "/predict/out.rds"

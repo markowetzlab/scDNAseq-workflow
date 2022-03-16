@@ -7,12 +7,16 @@ require(BiocGenerics, quietly=TRUE)
 require(gtools, quietly=TRUE)
 require(dplyr, quietly=TRUE)
 #require(scAbsolute)
-source("~/scAbsolute/R/core.R")
+if (interactive()){
+  BASEDIR="~/scAbsolute"
+} else {
+  BASEDIR="/opt/scAbsolute"
+}
+source(file.path(BASEDIR, "R/core.R"))
 args = commandArgs(trailingOnly=TRUE)
 indexSort = TRUE
 options(future.globals.maxSize= 4096*1024^2)
 
-print(args)
 rdsFiles = tail(args, n=-1)
 if (length(args) >= 3){
   d = args[2]
