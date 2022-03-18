@@ -21,7 +21,7 @@ wget -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz \
 sudo tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
 ```
 
-Finally, add /usr/local/go/bin to the PATH environment variable:
+Next, add /usr/local/go/bin to the PATH environment variable:
 
 ```bash
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
