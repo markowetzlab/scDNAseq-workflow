@@ -70,12 +70,12 @@ Install AWS Command Line Interface
 conda install -c conda-forge awscli
 ```
 
-then use the command
+then use the command (use access key and secret as provided)
 
 ```bash
 $ aws configure
-AWS Access Key ID [None]: AKIAIOSFODNN7EXAMPLE                                   # change this as you need
-AWS Secret Access Key [None]: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY           # change this as you need
+AWS Access Key ID [None]:                                    # change this as you need
+AWS Secret Access Key [None]:                                # change this as you need
 Default region name [None]: eu-central-1
 Default output format [None]: json
 ```
