@@ -1,5 +1,7 @@
-
 ## Installation
+
+Background information about installation of dependencies. Please refer to the respective tool documentation for more up-to-date information about how to install these dependencies.
+
 ### Singularity
 First you will need to install some dependencies and install Go.
 

@@ -2,12 +2,13 @@ rule scale_scAbsolute:
     input:
         bam="data/align/{sample}.bam",
         flagstat="data/align/{sample}.flagstat",
-        bai="data/align/{sample}.bam.bai"
+        bai="data/align/{sample}.bam.bai",
+        position="data/align/{sample}.position.tsv"
     params:
         prefix=lambda wildcards, input: os.path.dirname(input.bam),
         filefix=lambda wildcards, input: os.path.basename(input.bam)
     output:
-        rds="results/scale/"+ str(config["binSize"]) + "/predict/{sample}.rds"
+        rds="results/"+ str(config["binSize"]) + "/individual/{sample}.rds"
     singularity:
         IMAGE
     message:
@@ -20,9 +21,6 @@ rule scale_scAbsolute:
         . /opt/conda/etc/profile.d/conda.sh
         conda activate conda_runtime
         set -eu
-        # note, not compatible with conda_runtime
-        # export PYTHONPATH=/opt/conda/bin/python
-        # export SINGULARITYENV_PYTHONPATH=/opt/conda/bin/python
         export RETICULATE_PYTHON=/opt/conda/envs/conda_runtime/bin/python
         export MKL_THREADING_LAYER=sequential
         export OMP_NUM_THREADS=2

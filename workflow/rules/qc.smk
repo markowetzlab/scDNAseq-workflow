@@ -1,6 +1,6 @@
 rule qc:
     input:
-        bam="data/align/{sample}.bam"
+        bam="data/align/{sample}.bam",
     output:
         flagstat="data/align/{sample}.flagstat",
         bai="data/align/{sample}.bam.bai"
