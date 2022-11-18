@@ -1,0 +1,14 @@
+name: position_search
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-dplyr=1.0.7
+  - r-magrittr=2.0.1
+  - r-readr=2.1.0
+  - r-stringr=1.4.0
+  - r-tibble=3.1.6
+  - r-tidyr=1.1.4
+  - samtools=1.14
+  - picard=2.26.11

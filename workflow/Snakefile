@@ -13,9 +13,12 @@ SAMPLE_FILES = df["sample_name"].tolist()
 IMAGE = config["scAbsolute_img"]
 
 include: "rules/qc.smk"
+include: "rules/density.smk"
 include: "rules/scale_scAbsolute.smk"
 include: "rules/combine.smk"
 
+ruleorder: qc > density > scale_scAbsolute > combine
+
 rule all:
     input:
-        "results/scale/" + str(config["binSize"]) + "/predict/out.rds"
+        "results/" + str(config["binSize"]) + "/out.rds"
