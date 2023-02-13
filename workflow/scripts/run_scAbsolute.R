@@ -170,7 +170,7 @@ scaledCN = computeGini(scaledCN)
 scaledCN = computeMAPD(scaledCN)
 
 # compute information theoretic measures (quality control)
-scaledCN = computeInfotheo(scaledCN)
+# scaledCN = computeInfotheo(scaledCN)
 
 
 ## Include metadata
