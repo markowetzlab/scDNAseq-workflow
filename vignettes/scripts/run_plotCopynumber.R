@@ -1,8 +1,14 @@
 library(QDNAseq)
-BASEDIR="~/Projects/scAbsoluteMatters/scAbsolute"
+args = commandArgs(trailingOnly=TRUE)
+
+BASEDIR= args[1]
+#BASEDIR="~/Projects/scAbsoluteMatters/scAbsolute"
+
 source(file.path(BASEDIR, "R/core.R"))
 source(file.path(BASEDIR, "R/visualization.R"))
-CN = readRDS("~/Projects/scAbsoluteMatters/results/500/individual/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.rds")
+
+CN = readRDS(args[2])
+#CN = readRDS("~/Projects/scAbsoluteMatters/results/500/individual/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.rds")
 
 # plot single cell copy number profile
 plotCopynumber(CN[, 1])
