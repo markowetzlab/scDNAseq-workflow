@@ -13,6 +13,6 @@ rule density:
         1
     shell:
         """
-        which conda
+        type conda
         /bin/bash /opt/scAbsolute/data/readPosition/extract-start-sites.sh {input.bam} /opt/scAbsolute/data/readPosition/assembly.tsv;
         """
