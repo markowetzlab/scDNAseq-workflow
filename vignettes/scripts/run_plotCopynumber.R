@@ -2,8 +2,10 @@ library(QDNAseq)
 args = commandArgs(trailingOnly=TRUE)
 
 BASEDIR= args[1]
+
 source(file.path(BASEDIR, "R/core.R"))
 source(file.path(BASEDIR, "R/visualization.R"))
+
 CN = readRDS(args[2])
 
 # plot single cell copy number profile
