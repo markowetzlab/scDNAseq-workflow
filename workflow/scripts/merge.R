@@ -38,6 +38,17 @@ if (dir.exists(d) && (is.null(f) || !file.exists(f))){
   if(indexSort){
     rdsFiles = sort(rdsFiles, decreasing=FALSE)
   }
+  
+  filesToRemove <- character(0)  # Create an empty vector to store files to remove
+  for (file in rdsFiles) {
+    if (file.info(file)$size == 0) {
+      file.remove(file)
+      filesToRemove <- c(filesToRemove, file)  # Add the file to the filesToRemove vector
+      cat("File removed:", file, "\n")
+    }
+  }
+  rdsFiles <- setdiff(rdsFiles, filesToRemove)  # Remove the files from rdsFiles variable
+
 }
 
 if (is.data.frame(readRDS(rdsFiles[[1]]))) {
