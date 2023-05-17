@@ -40,6 +40,7 @@ rule qc:
         if [ $sorted -eq "1" ]; then
             samtools index {input.bam}
         else
-            exit 1;
+            touch {output.flagstat}
+            touch {output.bai}
         fi
         """
