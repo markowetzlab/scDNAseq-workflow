@@ -61,4 +61,5 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
   mergedRDS = combineQDNASets(unlist(rdsData))
 }
 
+write.csv(filesToRemove, file =paste0(dirname(args[1]),"/failed_cells.csv"), row.names = FALSE, col.names = FALSE)
 saveRDS(mergedRDS, file = args[1])
