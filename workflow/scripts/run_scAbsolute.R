@@ -239,13 +239,19 @@ args = commandArgs(trailingOnly=TRUE)
 if (interactive()){
   rm(list=ls()) 
   
+  # species = "Human"
+  # genome = "hg19"
+  species = "Mouse"
+  genome = "GRCm38" #"mm10" 
+  
   # bamPath = "~/Data/project1/20-align/"
   # bamFile = "UID-10X-Andor-2020-48959-MKN-45_SLX-00000_000365_CTAATGGGTTGATCGT-1.bam"
-  bamPath = "~/Data/project1/20-align/issues/"
-  bamFile = ""
+  bamPath = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/data/align/"#"~/Data/project1/20-align/issues/"
+  bamFile = "SH171012_VIII_068.bam" #mouse
+  # bamFile = "UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.bam" #human
 
-
-  RESULTPATH = "~/ExampleOutput.rds"
+  # RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.rds"
+  RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/SH171012_VIII_068.rds" #"~/ExampleOutput.rds"
   
   # options
   binSize = 500
@@ -253,19 +259,25 @@ if (interactive()){
   minPloidy = 1.1
   maxPloidy = 8.0
 
-  reticulate::use_condaenv(condaenv = "rstudio-server", conda = "~/.anaconda3/bin/conda")
-  BASEDIR="~/scAbsolute"
-}else{
-  bamPath = args[1]
-  bamFile = args[2]
+  #run with conda already configured before opening R
+  #reticulate::use_condaenv(condaenv = "rstudio-server", conda = "~/.anaconda3/bin/conda")
+  #reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda")
   
-  RESULTPATH = args[3]
+  BASEDIR="/home/adr44/rds/hpc-work/scAbsolute/github/scAbsolute" #"~/scAbsolute"
+} else{
+  species = args[1] 
+  genome = args[2] 
+  
+  bamPath = args[3]
+  bamFile = args[4]
+  
+  RESULTPATH = args[5]
 
-  binSize = args[4]
+  binSize = args[6]
   
-  if(length(args) == 6){
-    minPloidy = as.numeric(args[5])
-    maxPloidy = as.numeric(args[6])
+  if(length(args) == 8){
+    minPloidy = as.numeric(args[7])
+    maxPloidy = as.numeric(args[8])
   }else{
     minPloidy = NULL
     maxPloidy = NULL
@@ -314,9 +326,6 @@ binSize = as.numeric(binSize)
 # bin sizes currently supported by QDNAseq framework
 stopifnot(binSize %in% c(1, 5, 10, 15, 30, 50, 100, 500, 1000))
 
-species = "Human"
-genome = "hg19"
-
 trimLength = 1
 minLength = 10
 globalModel = NULL
@@ -326,7 +335,7 @@ splitPerChromosome=TRUE
 optimizeSegmentation=FALSE
 
 max_iterations=101
-change_prob=1e-3
+change_prob=1e-3 
 max_states=9
 
 ## Save data for later processing
@@ -342,8 +351,15 @@ if(is.null(minPloidy)) minPloidy = 1.1
 if(is.null(maxPloidy)) maxPloidy = 8.0
 
 ploidyWindow = 0.1
-ploidyRegion=c(paste0("chr", as.character(seq(1,22))), "chrX")
-selectRegion=c(paste0("chr", as.character(seq(1,22))), "chrX", "chrY")
+if(species == 'Human'){
+  ploidyRegion=c(paste0("chr", as.character(seq(1,22))), "chrX")
+  selectRegion=c(paste0("chr", as.character(seq(1,22))), "chrX", "chrY") 
+} else if(species == "Mouse") {
+  ploidyRegion=c(paste0("chr", as.character(seq(1,19))), "chrX")
+  selectRegion=c(paste0("chr", as.character(seq(1,19))), "chrX", "chrY")
+} else {
+  stop("Species is not supported")
+}
 limitPloidy=16
 
 method = "error" # model or error
@@ -364,7 +380,7 @@ stopifnot(all(file.exists(filePaths)))
 
 
 ## run the core algorithm - using scAbsolute wrapper function
-scaledCN = scAbsolute(filePaths, method=method, globalModel=globalModel, binSize=binSize, genome=genome,
+scaledCN = scAbsolute(filePaths, method=method, globalModel=globalModel, binSize=binSize, species=species, genome=genome,
            minLength=minLength, batchSize=1, testStatistic=testStatistic, limitPloidy=limitPloidy,
            minPloidy=minPloidy, maxPloidy=maxPloidy, ploidyWindow=ploidyWindow, ploidyRegion=ploidyRegion, selectRegion=selectRegion,
            splitPerChromosome=splitPerChromosome, optimizeSegmentation=optimizeSegmentation,
