@@ -13,11 +13,11 @@ SAMPLE_FILES = df["sample_name"].tolist()
 IMAGE = config["scAbsolute_img"]
 
 include: "rules/qc.smk"
-include: "rules/density.smk"
+#include: "rules/density.smk" #not sure what this does? Is it necessary (not in main branch)
 include: "rules/scale_scAbsolute.smk"
 include: "rules/combine.smk"
 
-ruleorder: qc > density > scale_scAbsolute > combine
+ruleorder: qc > scale_scAbsolute > combine
 
 rule all:
     input:
