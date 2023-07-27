@@ -19,7 +19,6 @@ rule scale_scAbsolute:
         set +eu
         . /opt/conda/etc/profile.d/conda.sh
         conda activate conda_runtime
-        which conda
         set -eu
         # note, not compatible with conda_runtime
         # export PYTHONPATH=/opt/conda/bin/python
@@ -27,7 +26,6 @@ rule scale_scAbsolute:
         export RETICULATE_PYTHON=/opt/conda/envs/conda_runtime/bin/python
         export MKL_THREADING_LAYER=sequential
         export OMP_NUM_THREADS=2
-        which python
         python -c "import tensorflow; import numpy; import pandas;"
         Rscript -e "library(reticulate); reticulate::py_discover_config();"
         Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}"
