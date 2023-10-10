@@ -1,8 +1,7 @@
 ## Snakemake workflow for single-cell DNA sequencing analysis (scAbsolute, scUnique).
 
-This workflow performs absolute copy number calling in single cell DNA sequencing data as described in TODO
-Please make sure to cite our publications if you use this program.
-Link to citation
+This workflow performs absolute copy number calling in single cell DNA sequencing data as described in (scAbsolute)[https://www.biorxiv.org/content/10.1101/2022.11.14.516440v2]
+Please make sure to cite our publications if you use this pipeline.
 
 We recommend the following approach.
 1. Initially, run the per-cell part of the pipeline (scAbsolute, source code available at
