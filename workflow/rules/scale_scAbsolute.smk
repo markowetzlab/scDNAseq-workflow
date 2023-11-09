@@ -3,7 +3,7 @@ rule scale_scAbsolute:
         bam="data/align/{sample}.bam",
         flagstat="data/align/{sample}.flagstat",
         bai="data/align/{sample}.bam.bai",
-        #position="data/align/{sample}.position.tsv" #again not sure of the purpose of this
+        position="data/align/{sample}.position.tsv"
     params:
         prefix=lambda wildcards, input: os.path.dirname(input.bam),
         filefix=lambda wildcards, input: os.path.basename(input.bam)

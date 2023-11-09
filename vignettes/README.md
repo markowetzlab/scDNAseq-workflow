@@ -20,19 +20,4 @@ here is an example command for running [run_plotCopynumber](scripts/run_plotCopy
 Rscript run_plotCopynumber.R ~/scAbsolute ~/results/500/individual/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.rds
 
 
-#Austins testing:
-# singularity run scabsolute_v2.9.3.sif
-# conda activate plotCopynumber_adr
-
-#human
-#Rscript vignettes/scripts/run_plotCopynumber.R /opt/scAbsolute /rds/user/adr44/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.rds
-#Rscript vignettes/scripts/run_plotCopynumber.R /opt/scAbsolute /rds/user/adr44/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-10X-Fibroblast-cell_SLX-00000_000003_AAAGATGTCATCGCGG-1.rds
-#Rscript vignettes/scripts/run_plotCopynumber.R /opt/scAbsolute /rds/user/adr44/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.rds
-
-#mouse
-#Rscript vignettes/scripts/run_plotCopynumber.R /opt/scAbsolute /rds/user/adr44/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/SH171012_I_028.rds
-#Rscript vignettes/scripts/run_plotCopynumber.R /opt/scAbsolute /rds/user/adr44/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/SH171012_I_052.rds
-#Rscript vignettes/scripts/run_plotCopynumber.R /opt/scAbsolute /rds/user/adr44/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/SH171012_VIII_068.rds
-``` 
-
 In the end, a pdf file (Rplots.pdf) would be generated, which is including a plot of single cell copy number profile, chromosome and only CN profile.
