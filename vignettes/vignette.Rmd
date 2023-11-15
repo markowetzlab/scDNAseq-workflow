@@ -70,7 +70,7 @@ conda install -c conda-forge awscli
 To utilize scAbsolute, it is necessary to load the required libraries as well as the essential functions. To achieve this, please set BASEDIR to the root folder of scAbsolute, which can be downloaded from the [GitHub](https://github.com/markowetzlab/scAbsolute){style="color: blue"} using "git clone https://github.com/markowetzlab/scAbsolute.git".
 
 ```{r, eval=FALSE}
-  BASEDIR="~/scAbsolute/"
+  BASEDIR="scAbsolute/"
   source(file.path(BASEDIR, "R/load_dependencies.R"))
   load_dependencies(BASEDIR)
 
@@ -102,9 +102,9 @@ Another method for assessing the read numbers is by utilizing the "readData" fun
 
 library(QDNAseq, quietly = TRUE)
 library(ggplot2, quietly = TRUE)
-BASEDIR="~/scAbsolute"
-BAMFILES=c("~/scAbsolute/data/align/UID-SERIF_SLX-00000_000285_R40-C69.bam",
-           "~/scAbsolute/data/align/UID-SERIF_SLX-00000_000287_R41-C03.bam")
+BASEDIR="scAbsolute"
+BAMFILES=c("scAbsolute/data/align/UID-SERIF_SLX-00000_000285_R40-C69.bam",
+           "scAbsolute/data/align/UID-SERIF_SLX-00000_000287_R41-C03.bam")
 source(file.path(BASEDIR, "R/core.R"))
 source(file.path(BASEDIR, "R/visualization.R"))
 
@@ -121,8 +121,8 @@ plotCounts(counts[,2],copynumber=FALSE,ylab="read counts",ylim=c(0,30))
 Here, we will explain some of the important parameters in detail to help users effectively use it for their CNV analysis. Firstly, we need to give the paths to the BAM files as the input. For this, we need a list of the paths to the BAM files in the filePaths variable which will be the first input of scAbsolute.
 
 ```{r, eval=FALSE}
-filePaths = ["data/align/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.bam",
-             "data/align/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.bam"]
+filePaths = ["scAbsolute/data/align/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.bam",
+             "scAbsolute/data/align/UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.bam"]
 ```
 
 Next, we specify the genomic bin size in kbp. The supported values for this parameter are: 1, 5, 10, 15, 30, 50, 100, 500, 1000.
@@ -204,7 +204,7 @@ outputPath="results/500/out.rds")
 ## Result
 
 ```{r, messege = FALSE,warning=FALSE}
-scaledCN = readRDS("/Users/darvis01/results/500/out.rds")
+scaledCN = readRDS("results/500/out.rds")
 
 ```
 -->
@@ -224,8 +224,8 @@ library(ggplot2, quietly = TRUE)
 library(ggbeeswarm, quietly = TRUE)
 library("ggpubr", quietly = TRUE)
 
-BASEDIR="~/scAbsolute"
-ALLSAMPLES="~/scAbsolute/results/500/UID-FML-PEO1-FUCCI-DOWNSAMPLED-EQUAL-FORDLP_500.rds"
+BASEDIR="scAbsolute"
+ALLSAMPLES="scAbsolute/results/500/UID-FML-PEO1-FUCCI-DOWNSAMPLED-EQUAL-FORDLP_500.rds"
 source(file.path(BASEDIR, "R/core.R"))
 source(file.path(BASEDIR, "R/visualization.R"))
 
@@ -261,9 +261,9 @@ If you don't have your own single-cell data to work with, you can use toy single
 
 
 ```{r,message=FALSE,warning=FALSE}
-BASEDIR="~/scAbsolute"
-ALLSAMPLES="~/scAbsolute/results/500/UID-FML-PEO1-FUCCI-DOWNSAMPLED-EQUAL-FORDLP_500.rds"
-OUTPUT= "~/scAbsolute/figures/test"
+BASEDIR="scAbsolute"
+ALLSAMPLES="scAbsolute/results/500/UID-FML-PEO1-FUCCI-DOWNSAMPLED-EQUAL-FORDLP_500.rds"
+OUTPUT= "scAbsolute/figures/test"
 ```
 ## Loading packages
 
@@ -323,3 +323,35 @@ plotDataset(object=CN, file=paste0(OUTPUT,"/out.pdf"),
 ```
 
 This will generate a pdf files "out-1.pdf" in the direction of OUTPUT.
+
+
+# Cell-level quality control
+
+Following removal of replicating cells in prior steps, low-quality cells are identified in this step using three metrics: the Median Absolute Deviation of Pairwise Differences (MAPD), Gini coefficient, and inferred alpha values per cell. Each metric has an adjustable cutoff parameter. 
+
+```{r, messege = FALSE,warning=FALSE}
+
+source("scUnique/R/core.R")
+mapd_cutoff <- 1.5
+mapd_density_control <- TRUE
+gini_norm_cutoff <- 1.5
+alpha_cutoff <- 2
+alpha_hard_cutoff <- 0.02
+gini_density_control <- TRUE
+rpc_cutoff <- 15
+
+
+filtered_rpc <- df %>% dplyr::filter(!replicating, rpc >= rpc_cutoff)
+filtered_mapd <- qc_mapd(filtered_rpc, cutoff_value = mapd_cutoff,
+                         densityControl=mapd_density_control)
+filtered_gini <- qc_gini_norm(filtered_mapd, cutoff_value = gini_norm_cutoff, 
+                              densityControl = gini_density_control)
+iq = qc_alpha(filtered_gini, cutoff_value=alpha_cutoff, 
+              hard_cutoff = alpha_hard_cutoff)
+iq$outlier = iq$dmapd.outlier | iq$dgini.outlier | iq$alpha.outlier
+fig_outliers = ggplot(data = iq) + geom_quasirandom(aes(x=SLX, y=alpha, color=outlier), 
+                size=0.8, alpha=1.0) + facet_wrap(~UID, scales = "free_x")+
+                theme_pubclean()
+fig_outliers
+
+```
