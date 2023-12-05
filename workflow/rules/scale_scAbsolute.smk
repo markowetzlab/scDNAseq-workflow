@@ -8,7 +8,7 @@ rule scale_scAbsolute:
         prefix=lambda wildcards, input: os.path.dirname(input.bam),
         filefix=lambda wildcards, input: os.path.basename(input.bam)
     output:
-        rds="results/scale/"+ str(config["binSize"]) + "/individual/{sample}.rds"
+        rds="results/scale/"+ str(config["binSize"]) + "/predict/{sample}.rds"
     singularity:
         IMAGE
     message:

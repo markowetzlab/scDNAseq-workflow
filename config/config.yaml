@@ -1,4 +1,6 @@
-samples: config/samples.tsv
+samples: config/samples_trial_human.tsv
 binSize: 500 # single value only, required
 scAbsolute_img: "docker://public.ecr.aws/k5n6p8b3/scabsolute:v3.5.1"
 qc_img: "docker://public.ecr.aws/k5n6p8b3/biocontainers/samtools:v1.9-4deb_cv1"
+species: Human
+genome: hg19

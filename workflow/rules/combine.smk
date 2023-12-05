@@ -1,8 +1,8 @@
 rule combine:
     input:
-        rds=expand("results/"+ str(config["binSize"]) + "/individual/{sample}.rds", sample=SAMPLE_FILES)
+        rds=expand("results/scale/"+ str(config["binSize"]) + "/predict/{sample}.rds", sample=SAMPLE_FILES)
     output:
-        merged_rds="results/"+ str(config["binSize"]) + "/out.rds"
+        merged_rds="results/scale/"+ str(config["binSize"]) + "/predict/out.rds"
     singularity:
         IMAGE
     message:

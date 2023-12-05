@@ -155,3 +155,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Singularity 
+*.sif
+
+# Data and Results
+data*
+results*
+
+# Run on Cluster
+run_slurm.sh
+
+.keras*
+.snakemake*
+.toy_slurm*
