@@ -14,7 +14,7 @@ rule density:
     shell:
         """
         type conda
-        if [ "{config[species]}" -eq "Human" ]; then
+        if [ "{config[species]}" = "Human" ]; then
             /bin/bash /opt/scAbsolute/data/readPosition/extract-start-sites.sh {input.bam} /opt/scAbsolute/data/readPosition/assembly.tsv
         else
             /bin/bash /opt/scAbsolute/data/readPosition/extract-start-sites.sh {input.bam} /opt/scAbsolute/data/readPosition/assembly_mouse.tsv
