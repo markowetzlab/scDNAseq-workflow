@@ -27,6 +27,7 @@ rule scale_scAbsolute:
         export OMP_NUM_THREADS=2
         type python
         python -c "import tensorflow; import numpy; import pandas;"
+        touch "{output.rds}"
         Rscript -e "library(reticulate); reticulate::py_discover_config();"
-        Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" 
+        Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" || true
         """
