@@ -21,4 +21,4 @@ ruleorder: qc > density > scale_scAbsolute > combine
 
 rule all:
     input:
-        "results/scale/" + str(config["binSize"]) + "/predict/out.rds"
+        "results/" + str(config["binSize"]) + "/out.rds"
