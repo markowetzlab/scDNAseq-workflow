@@ -2,8 +2,7 @@ rule qc:
     input:
         bam="data/align/{sample}.bam"
     output:
-        flagstat="data/align/{sample}.flagstat",
-        bai="data/align/{sample}.bam.bai"
+        flagstat="data/align/{sample}.flagstat"
     singularity:
         config["qc_img"]
     message:
@@ -17,7 +16,6 @@ rule qc:
         if [ $sorted -eq "1" ]; then
             samtools index {input.bam}
         else
-            touch {output.flagstat}
-            touch {output.bai}
+            exit 1;
         fi
         """

@@ -51,14 +51,14 @@ The pipeline will jointly call all samples that are listed in samples.tsv, with 
 Given that the workflow has been properly configured, it can be executed as follows.
 
 ```bash
-~/scDNAseq-workflow$ export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr get-login-password)
-~/scDNAseq-workflow$ snakemake --cores 1 --use-singularity --use-conda results/scale/500/predict/out.rds
+~/scDNAseq-workflow$ export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
+~/scDNAseq-workflow$ snakemake --cores 1 --use-singularity --use-conda results/scale/500/out.rds
 ```
 Please take the time to analyse the data (we have an example qc script available at scripts/run-qc.R)
 
 run second stage
 ```bash
-~/scDNAseq-workflow$ snakemake --cores 1 --use-singularity --use-conda results/scale/500/predict/out.rds
+~/scDNAseq-workflow$ snakemake --cores 1 --use-singularity --use-conda results/scale/500/out.rds
 ```
 
 Snakemake will automatically detect the main Snakefile in the workflow subfolder and execute the workflow module.

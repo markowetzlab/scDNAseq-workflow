@@ -14,10 +14,13 @@ rule density:
     shell:
         """
         type conda
-        if [ "{config[species]}" = "Human" ]; then
+        if [[ "{config[genome]}" == "hg19" ]] || [[ "{config[genome]}" == "GRCh37" ]]; then
             /bin/bash /opt/scAbsolute/data/readPosition/extract-start-sites.sh {input.bam} /opt/scAbsolute/data/readPosition/assembly.tsv
-        else
+        elif [[ "{config[genome]}" == "mm10" ]] || [[ "{config[genome]}" == "GRCm38" ]]; then
             /bin/bash /opt/scAbsolute/data/readPosition/extract-start-sites.sh {input.bam} /opt/scAbsolute/data/readPosition/assembly_mouse.tsv
+        else
+            echo "Pick a valid genome."
+            exit 1;
         fi
         """
 
