@@ -28,5 +28,5 @@ rule scale_scAbsolute:
         type python
         python -c "import tensorflow; import numpy; import pandas;"
         Rscript -e "library(reticulate); reticulate::py_discover_config();"
-        Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" 
+        Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" || true
         """
