@@ -14,7 +14,7 @@ rule combine:
         set +eu
         . /opt/conda/etc/profile.d/conda.sh
         conda activate conda_runtime
-        which conda
+        type conda
         set -eu
         export OMP_NUM_THREADS=4
         Rscript --vanilla "workflow/scripts/merge.R" "{output.merged_rds}" {input.rds}

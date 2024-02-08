@@ -16,9 +16,10 @@ if (interactive()){
   bamPath = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/data/align/"#"~/Data/project1/20-align/issues/"
   bamFile = "SH171012_VIII_068.bam" #mouse
   # bamFile = "UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.bam" #human
-
-  # RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.rds"
+  
+  # RESULTPATH = "~/ExampleOutput.rds"
   RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/SH171012_VIII_068.rds" #"~/ExampleOutput.rds"
+  # RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.rds"
   
   # options
   binSize = 500
@@ -30,6 +31,7 @@ if (interactive()){
   #reticulate::use_condaenv(condaenv = "rstudio-server", conda = "~/.anaconda3/bin/conda")
   #reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda")
   
+  #BASEDIR="~/scAbsolute"
   BASEDIR="/home/adr44/rds/hpc-work/scAbsolute/github/scAbsolute" #"~/scAbsolute"
 } else{
   species = args[1] 

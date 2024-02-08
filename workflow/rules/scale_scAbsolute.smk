@@ -3,7 +3,7 @@ rule scale_scAbsolute:
         bam="data/align/{sample}.bam",
         flagstat="data/align/{sample}.flagstat",
         bai="data/align/{sample}.bam.bai",
-        #position="data/align/{sample}.position.tsv" #again not sure of the purpose of this
+        position="data/align/{sample}.position.tsv"
     params:
         prefix=lambda wildcards, input: os.path.dirname(input.bam),
         filefix=lambda wildcards, input: os.path.basename(input.bam)
@@ -27,7 +27,6 @@ rule scale_scAbsolute:
         export OMP_NUM_THREADS=2
         type python
         python -c "import tensorflow; import numpy; import pandas;"
-        touch "{output.rds}"
         Rscript -e "library(reticulate); reticulate::py_discover_config();"
         Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" || true
         """
