@@ -1,49 +1,52 @@
-## Snakemake workflow for single-cell DNA sequencing analysis (scAbsolute, scUnique).
+# Snakemake workflow for single-cell DNA sequencing analysis (_scAbsolute_, _scUnique_).
 
-This workflow performs absolute copy number calling in single cell DNA sequencing data as described in (scAbsolute)[https://www.biorxiv.org/content/10.1101/2022.11.14.516440v2]
-Please make sure to cite our publications if you use this pipeline.
+## Overview
+This workflow performs absolute copy number calling and detection of recent copy number aberrations (rCNAs) in single-cell DNA sequencing data as described in [scAbsolute](https://www.biorxiv.org/content/10.1101/2022.11.14.516440v2) and [scUnique](missing). 
+Please make sure to cite our publications if you use this pipeline:
+- scAbsolute:
+- scUnique: 
 
-We recommend the following approach.
-1. Initially, run the per-cell part of the pipeline (scAbsolute, source code available at
-   https://github.com/markowetzlab/scAbsolute).
-2. Check results, run qc and exclude outlier cells. Check ploidy, and if necessary rerun script with modified ploidy limits for selected cells. This part of the pipeline requires manual inspection of results.
-3. Run the second stage of the pipeline (scUnique, source code available at https://github.com/markowetzlab/scUnique), combining the results from the per-cell analysis and creating a joint analysis of the dataset.
+Here is how to use the approach:
+1. Initially, run the per-cell part of the pipeline (_scAbsolute_)
+2. Inspect results, run quality control and outlier detection across all cells in each sample. If necessary, rerun ploidy analysis with an updated ploidy window. We highly recommend to manually inspect results at this stage as per-sample variations are considerable in our experience.
+3. Run the second stage of the pipeline (_scUnique_), combining the results from the per-cell analysis and creating a joint analysis of the dataset including an analysis of rCNAs.
 
-### Dependencies
-You will have to install snakemake and singularity/docker (depending on the level of system access you have and where you want to run your analysis)
+## Dependencies
+You must install [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) (we support version 8 and above) and [singularity/apptainer](https://apptainer.org/docs/admin/main/installation.html).
+We recommend using a cluster environment for the first part of the analysis. _scAbsolute_ is easy to parallelize across cells, and the speedup is linear in the number of CPUs.
 
-### Checkout repository
+## Getting started
 
 ```bash
 git clone https://github.com/markowetzlab/scDNAseq-workflow.git
 ```
 
-## Example
-A toy dataset of three .bam files can be downloaded from [here](https://drive.google.com/drive/folders/1402zegR4H7tWFluc2el9lyUr9H8rMXX6?usp=sharing). This workflow runs scAbsolute on the toy dataset and merges the outputs into one QDNASeq object named "out.rds".
+A toy dataset of one hundred bam files each (PEO1/PEO4) can be downloaded from [here](https://drive.google.com/drive/folders/1402zegR4H7tWFluc2el9lyUr9H8rMXX6?usp=sharing). Move the data to `./data/aligned/PEO1` and `./data/aligned/PEO4`. The workflow can produce rCNAs and copy number profiles for both data sets as described in the _scUnique_ manuscript.
+For reasons of simplicity, we only provide a subset of the PEO1/PEO4 data.
 
-## Project Structure
-We recommend to use the following structure of the project.
+### Project Structure
+The project has the following structure:
 
     .                               # main folder of the project
-    ├── data                        # contains all of the project’s original/raw data
+    ├── data                        
+    │   └── aligned
+    │       └── sample_name         # folder containing all bam files for one sample / to be created by the user
     ├── config                    
-    │   ├── config.yaml             # runtime specific configuration
-    │   ├── samples.tsv             # metadata and experiement information
-    ├── results                     # the output directory
+    │   ├── config.yaml             # configuration / edit as appropriate for every run
+    │   ├── samples.tsv             # file containing sample metadata / to be added by the user
+    ├── results                     # the output directory / created by workflow
     ├── workflow                    
-    │   ├── rules                   # building blocks of the workflows
-    │   ├── scripts                 # scripts that are our main analysis
-    │   └── Snakefile               # the steps needed that run all the scripts in the project
-    ├── LICENSE
-    └── README.md
-
+        ├── rules                   
+        ├── scripts                 # scripts that are our main analysis / edit for additional customization
+        └── Snakefile               
 
 
 ## Usage
 
 To configure this workflow, modify config/ according to your needs.
-* Add samples to config/samples.tsv
-* Change binSize in config/config.yaml
+* Add per-sample folder with bam files to data/aligned folder (as with the PEO1/PEO4 folders).
+* Create per sample configuration files to the config folder (one file per sample, see PEO1/PEO4.tsv examples).
+* Edit variables in config/config.yaml as appropriate.
 * after qc, exclude samples in config/exclude.tsv
 
 The pipeline will jointly call all samples that are listed in samples.tsv, with the exception of the samples in exclude.tsv.
