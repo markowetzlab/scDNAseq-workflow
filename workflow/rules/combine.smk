@@ -1,9 +1,9 @@
 rule combine:
     input:
-        rds=expand("results/scale/"+ str(config["binSize"]) + "/predict/{sample}.rds", sample=SAMPLE_FILES)
+        rds=expand("results/" + str(config["binSize"]) + "/" + str(config["sampleName"]) + "/" + "{sample}.rds", sample=SAMPLE_FILES)
     output:
-        merged_rds="results/scale/"+ str(config["binSize"]) + "/out.rds"
-    singularity:
+        merged_rds="results/" + str(config["binSize"]) + "/" + str(config["sampleName"]) + "_" + str(config["binSize"]) + ".rds"
+    container:
         IMAGE
     message:
         "Combining per cell objects into a per library object"

@@ -1,15 +1,15 @@
 rule scale_scAbsolute:
     input:
-        bam="data/align/{sample}.bam",
-        flagstat="data/align/{sample}.flagstat",
-        bai="data/align/{sample}.bam.bai",
-        position="data/align/{sample}.position.tsv"
+        bam="data/aligned/" + str(config["sampleName"]) + "/{sample}.bam",
+        flagstat="data/aligned/" + str(config["sampleName"]) + "/{sample}.flagstat",
+        bai="data/aligned/" + str(config["sampleName"]) + "/{sample}.bam.bai",
+        position="data/aligned/" + str(config["sampleName"]) + "/{sample}.position.tsv",
     params:
         prefix=lambda wildcards, input: os.path.dirname(input.bam),
         filefix=lambda wildcards, input: os.path.basename(input.bam)
     output:
-        rds="results/scale/"+ str(config["binSize"]) + "/predict/{sample}.rds"
-    singularity:
+        rds="results/" + str(config["binSize"]) + "/" + str(config["sampleName"]) + "/" + "{sample}.rds"
+    container:
         IMAGE
     message:
         "Calling absolute copy number profile for {input}"

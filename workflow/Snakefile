@@ -5,12 +5,25 @@ Program: Workflow for single cell or sWGS DNAseq absolute copy number calling - 
 Date: April 2020
 """
 import pandas as pd
+import os
 
 configfile: "config/config.yaml"
 assert(isinstance(config["binSize"], int))
 df = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str})
-SAMPLE_FILES = df["sample_name"].tolist()
+if len(df.columns) == 1:
+    SAMPLE_FILES = df.iloc[:, 0].tolist()
+else:
+    SAMPLE_FILES = df["sample_name"].tolist()
+
+f = lambda st : st[:-4] if st.endswith('.bam') else st
+SAMPLE_FILES = [f(s) for s in SAMPLE_FILES]
 IMAGE = config["scAbsolute_img"]
+
+
+def helper_dirname(wildcards):
+    filename = str(config["sampleName"])+"_"+str(config["binSize"])+".rds"
+    return os.path.join("results", str(config["binSize"]), filename)
+
 
 include: "rules/qc.smk"
 include: "rules/density.smk"
@@ -19,6 +32,7 @@ include: "rules/combine.smk"
 
 ruleorder: qc > density > scale_scAbsolute > combine
 
+
 rule all:
     input:
-        "results/scale/ + str(config["binSize"]) + "/out.rds"
+        helper_dirname

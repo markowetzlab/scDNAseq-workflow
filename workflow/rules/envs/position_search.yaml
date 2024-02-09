@@ -1,8 +1,6 @@
-name: position_search
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - r-dplyr=1.0.7
   - r-magrittr=2.0.1
