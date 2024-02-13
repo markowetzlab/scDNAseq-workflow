@@ -1,8 +1,10 @@
-samples: config/samples_trial_human_ploidy.tsv #samples_PEO1.tsv
-##samples: config/samples_trial_human.tsv ##config/samples_trial_mouse.tsv samples_trial_human_ploidy.tsv
-sampleName: Trial_Human
+samples: config/sample_PEO1.tsv #sample_PEO4.tsv
+##samples: config/samples_trial_human.tsv ##config/samples_trial_mouse.tsv
+sampleName: PEO1 # PEO4
 binSize: 500 ## single value only
 species: Human ##Mouse
 genome: hg19 ##GRCm38
 scAbsolute_img: "docker://public.ecr.aws/k5n6p8b3/scabsolute:v3.7.2"
+scAbsolute_img: "docker://public.ecr.aws/k5n6p8b3/scunique:v1.1.0"
 qc_img: "docker://public.ecr.aws/k5n6p8b3/biocontainers/samtools:v1.9-4deb_cv1"
+NCORES: 12
