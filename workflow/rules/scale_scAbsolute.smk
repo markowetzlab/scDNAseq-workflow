@@ -6,7 +6,9 @@ rule scale_scAbsolute:
         position="data/aligned/" + str(config["sampleName"]) + "/{sample}.position.tsv",
     params:
         prefix=lambda wildcards, input: os.path.dirname(input.bam),
-        filefix=lambda wildcards, input: os.path.basename(input.bam)
+        filefix=lambda wildcards, input: os.path.basename(input.bam),
+        minPloidy=lambda wildcards, input: LOOKUP_PLOIDY[wildcards.sample]["minPloidy"] if wildcards.sample in LOOKUP_PLOIDY else "NONE",
+        maxPloidy=lambda wildcards, input: LOOKUP_PLOIDY[wildcards.sample]["maxPloidy"] if wildcards.sample in LOOKUP_PLOIDY else "NONE",
     output:
         rds="results/" + str(config["binSize"]) + "/" + str(config["sampleName"]) + "/" + "{sample}.rds"
     container:
@@ -28,5 +30,9 @@ rule scale_scAbsolute:
         type python
         python -c "import tensorflow; import numpy; import pandas;"
         Rscript -e "library(reticulate); reticulate::py_discover_config();"
-        Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" || true
+        if [ "{params.minPloidy}" -eq "NONE" ]; then
+            Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" || true
+        else
+            Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" "{params.minPloidy}" "{params.maxPloidy}" || true
+        fi
         """

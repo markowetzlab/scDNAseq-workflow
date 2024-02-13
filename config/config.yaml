@@ -1,6 +1,6 @@
-samples: config/samples_PEO1.tsv
-##samples: config/samples_trial_human.tsv ##config/samples_trial_mouse.tsv
-sampleName: PEO1
+samples: config/samples_trial_human_ploidy.tsv #samples_PEO1.tsv
+##samples: config/samples_trial_human.tsv ##config/samples_trial_mouse.tsv samples_trial_human_ploidy.tsv
+sampleName: Trial_Human
 binSize: 500 ## single value only
 species: Human ##Mouse
 genome: hg19 ##GRCm38
