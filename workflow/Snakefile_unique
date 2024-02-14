@@ -1,0 +1,25 @@
+"""
+Author: M. P Schneider
+Affiliation: Cancer Research UK, CI
+Program: Workflow for single cell absolute copy number calling - joint analysis
+Date: December 2023
+"""
+import pandas as pd
+import os
+
+configfile: "config/config.yaml"
+assert(isinstance(config["binSize"], int))
+IMAGE_scUnique = config["scUnique_img"]
+
+
+def helper_outname(wildcards):
+    dirname = str(config["sampleName"]) + "_" + str(config["binSize"])
+    filename = dirname + ".RData"
+    return os.path.join("results", dirname, filename)
+
+
+include: "rules/call_scUnique.smk"
+
+rule all:
+    input:
+        helper_outname
