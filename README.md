@@ -4,15 +4,22 @@
 This workflow performs absolute copy number calling and detection of recent copy number aberrations (rCNAs) in single-cell DNA sequencing data as described in [scAbsolute](https://www.biorxiv.org/content/10.1101/2022.11.14.516440v2) and [scUnique](missing). 
 Please make sure to cite our publications if you use this pipeline:
 - scAbsolute:
-- scUnique: 
+- scUnique:
+- if you use scUnique, you should also cite MEDICC2 (Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al. MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution. Genome Biol 23, 241 (2022). https://doi.org/10.1186/s13059-022-02794-9)
 
 Here is how to use the approach:
 1. Initially, run the per-cell part of the pipeline (_scAbsolute_)
-2. Inspect results, run quality control and outlier detection across all cells in each sample. If necessary, rerun ploidy analysis with an updated ploidy window. We highly recommend to manually inspect results at this stage as per-sample variations are considerable in our experience.
-3. Run the second stage of the pipeline (_scUnique_), combining the results from the per-cell analysis and creating a joint analysis of the dataset including an analysis of rCNAs.
+2. Inspect results and run quality control and outlier detection across all cells in each sample. If necessary, rerun the ploidy analysis with an updated ploidy window. We highly recommend manually inspecting results at this stage, as per-sample variations are considerable in our experience. Per-cell ploidy windows can be specified in the sample files (see config/sample_PEO1.tsv for reference).
+3. Run the second stage of the pipeline (_scUnique_), combining the results from the per-cell analysis and creating a joint analysis of the dataset, including an analysis of rCNAs.
 
 ## Dependencies
 You must install [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) (we support version 8 and above) and [singularity/apptainer](https://apptainer.org/docs/admin/main/installation.html).
+You must clone the *scAbsolute* and *scUnique* GitHub repositories to your local machine. We demonstrate usage with cloning to the home directory, but it is also possible to use another directory.
+```bash
+git clone https://github.com/markowetzlab/scAbsolute.git
+git clone https://github.com/markowetzlab/scUnique.git
+```
+
 We recommend using a cluster environment for the first part of the analysis. _scAbsolute_ is easy to parallelize across cells, and the speedup is linear in the number of CPUs.
 
 ## Getting started
@@ -47,23 +54,36 @@ To configure this workflow, modify config/ according to your needs.
 * Add per-sample folder with bam files to data/aligned folder (as with the PEO1/PEO4 folders).
 * Create per sample configuration files to the config folder (one file per sample, see PEO1/PEO4.tsv examples).
 * Edit variables in config/config.yaml as appropriate.
-* after qc, exclude samples in config/exclude.tsv
 
-The pipeline will jointly call all samples that are listed in samples.tsv, with the exception of the samples in exclude.tsv.
-
-Given that the workflow has been properly configured, it can be executed as follows.
-
+Given that the workflow has been properly configured, the **scAbsolute** part can be executed as follows:
 ```bash
 ~/scDNAseq-workflow$ export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
-~/scDNAseq-workflow$ snakemake --cores 1 --use-singularity --use-conda results/scale/500/out.rds
+~/scDNAseq-workflow$ snakemake --cores 32 --software-deployment-method conda apptainer --use-conda --use-singularity --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scAbsolute:/opt/scAbsolute" --snakefile workflow/Snakefile_absolute
 ```
-Please take the time to analyse the data (we have an example qc script available at scripts/run-qc.R)
 
-run second stage
+Please take the time to analyze the data (the qc script to be used for this step is available at scripts/qc-script.R)
 ```bash
-~/scDNAseq-workflow$ snakemake --cores 1 --use-singularity --use-conda results/scale/500/out.rds
+~/scDNAseq-workflow$ conda env create -f envs/copynumber.yml
+~/scDNAseq-workflow$ conda activate copynumber
+```
+Run the qc script available in workflow/scripts/qc-script.R, ensuring the cutoffs are reasonable given the plots generated. Some information about the process can be found in the 
+vignette (vignettes/vignette-rCNA). Depending on the outcome (e.g. the ploidy estimates), it might be worth re-running the initial pipeline with more stringent ploidy constraints or an updated bin size.
+All files passing the qc step will be added to a tsv file in results/pass_qc and this file will be used to select only high quality cells for the next step.
+
+Note that you should not move the output of the first step before running the second step of the pipeline, as this will result in errors in the output file detection. The second part of the pipeline (**scUnique**) can be run as follows:
+```bash
+~/scDNAseq-workflow$ export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
+~/scDNAseq-workflow$ snakemake --shared-fs-usage none --cores 12 --software-deployment-method conda apptainer --use-conda --use-singularity --singularity-args "-B /home/schnei01/.cache -B /home/schnei01/scUnique:/opt/scUnique -B /home/schnei01/scAbsolute:/opt/scAbsolute -B /mnt/scratcha/fmlab/schnei01/Data/download:/mnt/scratcha/fmlab/schnei01/Data/download" --snakefile workflow/Snakefile_absolute
 ```
 
-Snakemake will automatically detect the main Snakefile in the workflow subfolder and execute the workflow module.
+Results are then available in results/sample_name. See the vignette-rCNAs for examples of how to analyse the results in practice.
 
-Note, you should not move the output of the first step before running the second step of the pipeline, as this will result in errors in the output file detection.
+
+## FAQ
+
+**Q: Can I use a different directory structure for the project?**
+**A:** n this case, the BASEDIR variable in the qc-script has to be adapted and the 
+
+
+**Q: What bin size should I choose?**
+**A:** I would recommend choosing a bin size such that the effective reads per bin and copy number (the rpc variable in the code) are larger than 50 (and ideally around 100). The bin sizes available in this package are limited by the available bin sizes in QDNAseq (TODO). 
