@@ -115,12 +115,12 @@ Results are then available in results/sample_name. See vignette-rCNAs for exampl
 **A:** I would recommend choosing a bin size such that the effective reads per bin and copy number (the rpc variable in the code/rho variable in the manuscript) are larger than 50 (and ideally around 100). The bin sizes in this package are limited by the available bin sizes in QDNAseq (1, 5, 10, 15, 30, 50, 100, 500, and 1000 kbp). We have added support for 200kb in our implementation, and it's possible to add other custom bin sizes as per the QDNAseq instructions. 
 
 
-**Q: My data is very shallow. Can I use *absolute* and the rest of the pipeline? **
+**Q: My data is very shallow. Can I use *absolute* and the rest of the pipeline?**
 
 **A:** It's not possible to run the workflow on very sparse datasets, as *scAbsolute* requires a sufficient number of bins to fit the Gaussians. The maximum bin size supported by the entire workflow is 1MB. The minimum bin size mainly depends on and is limited by the sequencing depth. From experience, any cells with substantially less than 300,000 reads are unsuitable for this approach, and should be excluded from the analysis.
 
 
-**Q: My data is single-cell RNAseq not DNAseq. Can I use this workflow? **
+**Q: My data is single-cell RNAseq not DNAseq. Can I use this workflow?**
 
 **A:** No, this method has been specifically developed for single-cell DNA sequencing data.
 
