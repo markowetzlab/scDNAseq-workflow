@@ -1,0 +1,14 @@
+name: copynumber
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - bioconda::bioconductor-qdnaseq
+  - r::r-tidyverse
+  - r::r-cowplot
+  - r::r-ggpubr
+  - r::r-ggbeeswarm
+  - conda-forge::r-robustbase
+  - bioconda::bioconductor-qdnaseq.hg19
+  - bioconda::bioconductor-qdnaseq.mm10
+prefix: /home/schnei01/.anaconda3/envs/copynumber

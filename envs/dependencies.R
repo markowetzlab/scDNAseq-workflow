@@ -1,0 +1,10 @@
+require(tidyverse)
+require(QDNAseq)
+require(Biobase)
+require(ggpubr)
+require(ggbeeswarm)
+
+source(paste0(BASEDIR, "scAbsolute/R/core.R"))
+source(paste0(BASEDIR, "scAbsolute/R/visualization.R"))
+source(paste0(BASEDIR, "scUnique/R/core.R"))
+source(paste0(BASEDIR, "scUnique/R/visualize.R"))
