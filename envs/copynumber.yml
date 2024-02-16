@@ -1,14 +1,18 @@
 name: copynumber
 channels:
   - conda-forge
+  - bioconda
+  - r
   - defaults
 dependencies:
   - bioconda::bioconductor-qdnaseq
+  - bioconda::bioconductor-qdnaseq.hg19
+  - bioconda::bioconductor-qdnaseq.mm10
+  - bioconda::bioconductor-complexheatmap
   - r::r-tidyverse
   - r::r-cowplot
   - r::r-ggpubr
   - r::r-ggbeeswarm
+  - conda-forge::r-phylogram
   - conda-forge::r-robustbase
-  - bioconda::bioconductor-qdnaseq.hg19
-  - bioconda::bioconductor-qdnaseq.mm10
-prefix: /home/schnei01/.anaconda3/envs/copynumber
+  - conda-forge::r-viridis
