@@ -29,17 +29,17 @@ You can run the analysis with the snakemake workflow provided (recommended). Alt
 
 In order to run the pipeline, you will require a working snakemake (tested with version 8) and singularity installation. In order to access the docker images, you will need the aws client. Input bam files should be coordinate-sorted. In addition, the scAbsolute and scUnique git directories should be cloned to your home directory (by default "~/"). 
 You can also modify the directory via the BASEDIR variable and via the singularity mount options when executing the containers. 
-We also highly recommend using our naming scheme for the reads, described in the other vignette. Every name consists of four parts, separated by an underscore. It basically is:
+We also highly recommend using our naming scheme for the reads, described in the  basic vignette. Every name consists of four parts, separated by an underscore.
 ```
 [unique sample identifier]_[library identifier]_[running cell id]_[cell tag/all other information].bam
 UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.bam
-
 ```
 
 
-# Running scAbsolute
+# Single-cell ploidy and replication analysis, and single-cell copy number calling 
 
-The data (subsampled to 100 cells each) are available to download at TODO link. 
+The data (subsampled to 100 cells each) are available to download at [this link](https://drive.google.com/drive/folders/1eEZHPteZmRrol-x0I7gFyM7gk-giJk6W?usp=sharing)
+.
 Download the files to the folder data/aligned/PEO1 and PEO4, respectively.
 Normally, you would need to create a sample file, but these already exist in the 
 config folder (see config/sample_PEO1.tsv and config/sample_PEO4.tsv).
@@ -53,6 +53,7 @@ We highly recommend manually inspecting the results of the scAbsolute run. While
 
 Please have a look at the qc-script.R files under workflow/scripts. I will briefly go over the main checks in the script here to demonstrate what things to look for.
 
+
 ## Loading libraries and data for interactive analysis
 We recommend using the copynumber conda environment provided in config/envs.yml.
 To visualize results and conduct the quality controls, we first need to load dependencies. 
@@ -62,7 +63,7 @@ To visualize results and conduct the quality controls, we first need to load dep
   source(paste0(WORKFLOW_PATH, "envs/dependencies.R"))
   
   df = dplyr::bind_rows(lapply(
-    c("results/500/PEO1_500.rds", "results/500/PEO4_500.rds"), function(x){
+    c("vignettes/data/PEO1_500.rds", "vignettes/data/PEO4_500.rds"), function(x){
       return(Biobase::pData(readRDS(paste0(WORKFLOW_PATH, x))))
   })) %>%
     tidyr::separate(name, sep="_", into=c("UID", "SLX", "cellid", "celltag"), remove=FALSE) %>%
@@ -75,7 +76,7 @@ To visualize results and conduct the quality controls, we first need to load dep
 df = predict_replicating(df, cutoff_value=1.5, iqr_value = 1.5)
 fig_cellcycle = ggplot(data = df) + geom_quasirandom(aes(x=SLX, y=cycling_activity,
   color=replicating, name=name), size=0.8, alpha=1.0) +
-  geom_point(data = df %>% dplyr::filter(cellid %in% c("000001", "000013", "000067"), SLX=="23965"), aes(x=SLX, y=cycling_activity), color="black", size=1.2, shape=21) +
+  geom_point(data = df %>% dplyr::filter(cellid %in% c("000002", "000013", "000067"), SLX=="23965"), aes(x=SLX, y=cycling_activity), color="black", size=1.2, shape=21) +
   facet_wrap(~UID, scales = "free_x") + theme_pubclean()
 fig_cellcycle
 ```
