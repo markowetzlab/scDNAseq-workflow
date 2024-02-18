@@ -152,6 +152,10 @@ splitPerChromosome=df$splitPerChromosome[1]
 pass_qc = do.call("c", lapply(list.files(path=file.path(RESULTPATH, "pass_qc/"), pattern="\\.tsv", full.names = TRUE),
                   function(x){readr::read_tsv(x, col_names=c("UID", "SLX", "name"), col_types="ccc")[["name"]]}))
 include_cells = colnames(CN)[colnames(CN) %in% pass_qc]
+if(length(include_cells)==0){
+  warning("It seems like no cell passed qc.\nDid you create a pass_qc file for the sample?")
+  stop()
+}
 # we generally don't trust Y and X chromosome calls for rCNA analysis
 include_chr = !(startsWith(rownames(CN), "Y:"))
 object = CN[include_chr, include_cells]

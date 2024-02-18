@@ -9,7 +9,7 @@ import os
 
 configfile: "config/config.yaml"
 assert(isinstance(config["binSize"], int))
-df = pd.read_csv(config["samples"], sep="\t", dtype={"sample_name": str})
+df = pd.read_csv(config["samples"], delimiter='\t', dtype={"sample_name": str})
 assert len(df.columns) == 1 or len(df.columns) == 3
 IMAGE = config["scAbsolute_img"]
 LOOKUP_PLOIDY = {}
@@ -18,6 +18,7 @@ if len(df.columns) == 1:
     f = lambda st : st[:-4] if st.endswith('.bam') else st
     SAMPLE_FILES = [f(s) for s in SAMPLE_FILES]
 else:
+    df.columns = ["sample_name", "min_ploidy", "max_ploidy"]
     SAMPLE_FILES = df["sample_name"].tolist()
 
     MIN_PLOIDY = df["min_ploidy"].tolist()

@@ -76,7 +76,6 @@ library(matrixStats, quietly=TRUE, warn.conflicts = FALSE)
 print(paste0("Base directory: ", BASEDIR))
 
 source(file.path(BASEDIR, "data/changepoint/wrap_PELT.R"))
-source(file.path(BASEDIR, "data/changepoint/wrap_PELT.R"))
 source(file.path(BASEDIR, "R/scSegment.R"))
 source(file.path(BASEDIR, "R/scAbsolute.R"))
 source(file.path(BASEDIR, "R/core.R"))
@@ -104,7 +103,7 @@ splitPerChromosome=TRUE
 optimizeSegmentation=FALSE
 
 max_iterations=101
-change_prob=1e-3 
+change_prob=1e-3
 max_states=9
 
 ## Save data for later processing
@@ -121,8 +120,8 @@ if(is.null(maxPloidy)) maxPloidy = 8.0
 
 ploidyWindow = 0.1
 if(species == 'Human'){
-  ploidyRegion=c(paste0("chr", as.character(seq(1,22))), "chrX")
-  selectRegion=c(paste0("chr", as.character(seq(1,22))), "chrX", "chrY") 
+  ploidyRegion=c(paste0("chr", as.character(seq(1,22))))# , "chrX")
+  selectRegion=c(paste0("chr", as.character(seq(1,22))))#, "chrX", "chrY") 
 } else if(species == "Mouse") {
   ploidyRegion=c(paste0("chr", as.character(seq(1,19))), "chrX")
   selectRegion=c(paste0("chr", as.character(seq(1,19))), "chrX", "chrY")

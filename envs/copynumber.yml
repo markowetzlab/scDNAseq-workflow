@@ -10,9 +10,9 @@ dependencies:
   - bioconda::bioconductor-qdnaseq.mm10
   - bioconda::bioconductor-complexheatmap
   - r::r-tidyverse
-  - r::r-cowplot
   - r::r-ggpubr
   - r::r-ggbeeswarm
   - conda-forge::r-phylogram
+  - conda-forge::r-ggbeeswarm
   - conda-forge::r-robustbase
   - conda-forge::r-viridis

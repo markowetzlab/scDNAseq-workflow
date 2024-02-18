@@ -21,15 +21,15 @@ if (interactive()){
   sampleName = "PEO1-PEO4"
   
 }else{
-  sampleName = "PEO1-PEO4"
+  sampleName = args[1]
   sampleFile = args[2]
 }
 sampleFile = do.call("c", (base::strsplit(sampleFile, split=",")))
 
 ## Setup ====
-# TODO script this part
 BASEDIR="~/"
 BASEDIR=normalizePath(BASEDIR)
+WORKFLOW_PATH="~/scDNAseq-workflow/"
 require(QDNAseq, quietly = TRUE, warn.conflicts = FALSE)
 require(ggbeeswarm, quietly = TRUE, warn.conflicts = FALSE)
 require(ggpubr, quietly = TRUE, warn.conflicts = FALSE)
@@ -48,7 +48,7 @@ df = Biobase::pData(object) %>%
 stopifnot("UID" %in% colnames(df))
 stopifnot("SLX" %in% colnames(df))
  
-# 1. extreme number of reads outliers
+# 1. number of reads extreme outliers
 reads_cutoff = quantile(df$used.reads, c(0.025, 0.975)) # by default we remove the top and bottom 2.5% of cells with very high or low read number 
 p_coverage = ggplot(data=df %>% dplyr::select(rpc, used.reads, UID, SLX)) +
   geom_histogram(aes(x=used.reads, y=..density.., color=interaction(UID, SLX)), bins = 100, position="identity", fill="white") +
@@ -70,12 +70,14 @@ stopifnot(all(is.character(exclude_cells)))
 include = setdiff(colnames(object), exclude_cells)
 
 object = object[, include]
+df = df %>% dplyr::filter(!(name %in% base::union(issue_coverage, issue_manual)))
+stopifnot(dim(df)[[1]] == dim(object)[[2]])
 print(paste0("ISSUES: ", base::union(issue_coverage, issue_manual)))
 
 # PARAMETERS ====
 # see source for description
 # replicating
-cutoff_replicating = 1.00
+cutoff_replicating = 1.50
 cutoff_replicating_iqr = 1.5
 cutoff_replicating_hard = NULL
 # MAPD
@@ -85,7 +87,7 @@ mapd_density_control = FALSE
 gini_norm_cutoff = 2.00
 gini_density_control = FALSE
 # alpha
-alpha_cutoff = 1.0
+alpha_cutoff = 1.5
 alpha_hard_cutoff = 0.05 # 0.05: about 99 percentile of data for 500 kb
 print(paste0("Number of cells: ", dim(object)[[2]]))
 
@@ -166,24 +168,26 @@ issue_ploidy = base::union(iq$name[iq$ploidy < 1.1], iq$name[iq$ploidy > 8.0])
 
 ## Optionally visualize copy number profiles
 names = colnames(object)
-pass_names = names[!(names %in% c(issue_qc, issue_sphase, issue_wgd))]
-names = c(pass_names, issue_qc, issue_sphase, issue_wgd)
+pass_names = names[!(names %in% c(issue_sphase, issue_qc, issue_ploidy))]
+issues = unique(base::union(base::union(issue_sphase, issue_qc), issue_ploidy))
+names = c(pass_names, issues)
+stopifnot(length(setdiff(names, colnames(object))) == 0)
 ha = rowAnnotation(replicating = ifelse(names %in% issue_sphase, "TRUE", "FALSE"),
                    quality = ifelse(names %in% issue_qc, "TRUE", "FALSE"),
                    ploidy = ifelse(names %in% issue_ploidy, "TRUE", "FALSE"),
-                   remove = ifelse(names %in% c(issue_qc, issue_sphase, issue_ploidy), "FALSE", "TRUE"),
+                   remove = ifelse(names %in% c(issue_sphase, issue_qc, issue_ploidy), "FALSE", "TRUE"),
                    col = list(replicating = c("FALSE" = "#63ACBE", "TRUE" = "#EE442F"),
                               quality = c("FALSE" = "#63ACBE", "TRUE" = "#EE442F"),
                               ploidy = c("FALSE" = "#63ACBE", "TRUE" = "#EE442F"),
                               remove = c("TRUE" = "#63ACBE", "FALSE" = "#EE442F")),
-                   show_legend = c(FALSE, FALSE, TRUE, FALSE))
+                   show_legend = c(FALSE, FALSE, FALSE, TRUE))
 
-#fig_cn = plotCopynumberHeatmap(object[, names],
-#                               cluster_rows = FALSE, har = ha)
+# optionally, plot raw copy number profiles
+#fig_cn = plotCopynumberHeatmap(object[, names], cluster_rows = FALSE, har = ha)
 #fig_cn
 
 
-## Select profiles to keep for scUnique analysis
+## select profiles to keep for scUnique analysis
 df$keep = !(df$name %in% base::union(base::union(issue_qc, issue_sphase), issue_ploidy))
 print("Total kept")
 print(prop.table(table(df$keep, df$UID), margin=2))
@@ -196,4 +200,7 @@ stopifnot(all(!is.na(df$hmm.alpha[df$keep]) & !is.nan(df$hmm.alpha[df$keep])))
 ggplot(data = df %>% dplyr::filter(keep)) + geom_histogram(aes(x=ploidy), bins=50) + facet_wrap(~UID+SLX)
 
 ## export names of files that pass QC processing to file
-readr::write_tsv(df %>% dplyr::filter(keep) %>% dplyr::arrange(name) %>% dplyr::select(UID, SLX, name), path=paste0("pass_", sampleName, ".tsv"), append = FALSE, col_names=FALSE)
+print("Writing to file.")
+ifelse(!dir.exists(file.path(WORKFLOW_PATH, "results/pass_qc/")), dir.create(file.path(WORKFLOW_PATH, "results/pass_qc/")), FALSE)
+readr::write_tsv(df %>% dplyr::filter(keep) %>% dplyr::arrange(name) %>% dplyr::select(UID, SLX, name),
+                 path=paste0(WORKFLOW_PATH, "results/pass_qc/pass_", sampleName, ".tsv"), append = FALSE, col_names=FALSE)
