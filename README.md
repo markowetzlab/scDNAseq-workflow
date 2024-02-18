@@ -17,13 +17,13 @@ Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al. MEDICC2: whole-genome doubl
 ```
 
 Here is how to use the approach:
-1. Initially, run the per-cell part of the pipeline
-2. Inspect results and run quality control and outlier detection across all cells in each sample. If necessary, rerun the ploidy analysis with an updated ploidy window. I highly recommend manually inspecting results at this stage, as per-sample variations are considerable in our experience. Per-cell ploidy windows can be specified in the sample files (see config/sample_PEO1.tsv for reference).
-3. Run the second stage of the pipeline (_scUnique_), combining the results from the per-cell analysis and creating a joint analysis of the dataset, including an analysis of rCNAs.
+1. Initially, run the per-cell part of the pipeline (*scAbsolute* + single-cell copy number calling)
+2. Inspect results and run quality control and outlier detection across all cells in each sample. If necessary, rerun the ploidy analysis (step 1) with an updated ploidy window. Per-cell ploidy windows can be specified in the sample files (see config/sample_PEO1.tsv for reference). I highly recommend manually inspecting results at this stage, as per-sample variations are considerable in our experience and cutoffs may need to be adjusted on a per-sample basis. 
+3. Run the second stage of the pipeline (_scUnique_), combining the results from the per-cell analysis and creating a joint analysis of the dataset, including an analysis of recent copy number aberrations (rCNAs).
 
 ## Dependencies
 You must install [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) (we support version 8 and above) and [singularity/apptainer](https://apptainer.org/docs/admin/main/installation.html).
-You must clone the *scAbsolute* and *scUnique* GitHub repositories to your local machine. We demonstrate usage with cloning to the home directory, but it is also possible to use another directory.
+You must clone the *scAbsolute* and *scUnique* GitHub repositories to your local machine. We demonstrate usage with cloning to the home directory, but it is also possible to use another directory, but you will have to modify the BASEDIR variable.
 ```bash
 git clone https://github.com/markowetzlab/scAbsolute.git
 ```
@@ -55,7 +55,7 @@ The project has the following structure:
     ├── results                     # the output directory / created by workflow
     ├── workflow                    
         ├── rules                   
-        ├── scripts                 # scripts that are our main analysis / edit for additional customization
+        ├── scripts                 # main analysis scripts / edit for additional customization
         └── Snakefile               
     └── vignettes                   # documentation and tutorials
 
@@ -88,7 +88,7 @@ conda activate copynumber
 ```
 Run the qc script available in workflow/scripts/qc-script.R, ensuring the cutoffs are reasonable given the plots generated. Some information about the process can be found in the 
 vignette (vignettes/vignette-rCNA). Depending on the outcome (e.g. the ploidy estimates), it might be worth re-running the initial pipeline with more stringent ploidy constraints or an updated bin size.
-All files passing the qc step will be added to a sample-specific TSV file in results/pass_qc. Only cells listed in any one of the files in the pass_qc folder will be in the subsequent joint analysis step.
+All files passing the qc step will be added to a sample-specific TSV file in results/pass_qc. Only cells listed in any one of the files in the pass_qc folder will be included in the subsequent joint analysis step.
 
 ### Joint copy number analysis and recent copy number aberration (rCNA) detection
 
