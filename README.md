@@ -40,7 +40,7 @@ _scAbsolute_ is easy to parallelize across cells, and the speedup is linear in t
 git clone https://github.com/markowetzlab/scDNAseq-workflow.git && cd scDNAseq-workflow
 ```
 
-A realistic, but small dataset of one hundred bam files each (PEO1/PEO4) can be downloaded from [here](https://drive.google.com/drive/folders/1402zegR4H7tWFluc2el9lyUr9H8rMXX6?usp=sharing). Move the data to `./data/aligned/PEO1` and `./data/aligned/PEO4`. The workflow can produce rCNAs and copy number profiles for both data sets as described in the _scUnique_ manuscript.
+A realistic, but small dataset of one hundred (sorted) bam files each (PEO1/PEO4) can be downloaded from [here](https://drive.google.com/drive/folders/1402zegR4H7tWFluc2el9lyUr9H8rMXX6?usp=sharing). Move the data to `./data/aligned/PEO1` and `./data/aligned/PEO4`. The workflow can produce rCNAs and copy number profiles for both data sets as described in the _scUnique_ manuscript.
 
 ### Project Structure
 The project has the following structure:
@@ -63,7 +63,7 @@ The project has the following structure:
 ## Usage
 
 To configure this workflow, modify config/ according to your needs.
-* Add per-sample folder with bam files to data/aligned folder (as with the PEO1/PEO4 folders).
+* Add per-sample folder with coordinate-sorted bam files (one bam file per cell) to data/aligned folder (as with the PEO1/PEO4 folders).
 * Create per sample configuration files to the config folder (one file per sample, see PEO1/PEO4.tsv examples).
 * Edit variables in config/config.yaml as appropriate.
 
@@ -104,6 +104,19 @@ Results are then available in results/sample_name. See vignette-rCNAs for exampl
 
 
 ## FAQ
+
+**Q: What is the input for the programme?**
+
+**A:** Our workflow requires coordinate-sorted bam files (one file per cell) with a minimum read depth of about 200,000 reads per cell. The actual required read depth depends on the sample ploidy and bin size. Knowing these parameters you can then easily compute the required number of reads.
+
+**Q: How do I compute the number of reads I should aim for in my experiment?**
+
+**A:** Three elements determine the effective number of reads you want to obtain per cell. Bin size (we support 1, 5, 10, 15, 30, 50, 100, 200, 500, and 1000 kb bins), sample ploidy (defined as the average copy number state across the genome), and the target number of reads per copy and per bin (we refer to this in the publication as ρ and in the code as rpc).
+Let's say you want to check if your sample harbours rCNAs at a bin size of 500kb, and you know your sample has a ploidy of 2.5. Assume the quality of your sequencing is similar to the DLP sequencing assay, and you would be okay with an FDR of about 10%. In this case, you can target a value of ρ = 50. This gives us the required number of reads as n_reads = ρ * ploidy * n_bins, where n_bins is about 5000 (Note that the genome at 500kb resolution has closer to 6000 bins, but we lose about 1000 bins due to quality issues, and we recommend ignoring the sex chromosomes for rCNA analysis). 
+This gives us a target per-cell number of 50 * 2.5 * 5000 ~ 600,000 reads. Note that it makes sense to target a slightly higher number (at least an additional 10-20%, due to duplicated reads, the fact that we blacklist a certain proportion of bins, and the fact that we obtain a distribution of reads over the cells and we should aim to keep most of the cells at a ρ value of 50 and over). 
+Similarly, if we have a sample with a ploidy of 1.5, and we want to do an analysis at 100kb resolution at ρ=50, we then end up with close to 2 million reads per cell (n_reads = 50 * 1.5 * 25000 = 1,875,000).
+Finally, another scenario. Assume we have sequenced a precious tumour sample with an unknown ploidy at an average sequencing depth of 3 million reads per cell. Running the first part of the workflow we determine the average cell ploidy to be 2.7. Again, given the sequencing quality, we need at least ρ=50 to have some trust in the per-cell copy number calls. We then can ask what bin size we can analyze the data at. n_bins = n_reads / (ρ * ploidy) = 3e6 / (50 * 2.7) ~ 22 000. We could, therefore, probably work with 100kb or more cautiously with 200kb bin size. 
+
 
 **Q: Can I use a different directory structure for the project?**
 
