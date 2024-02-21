@@ -20,6 +20,8 @@ if (interactive()){
   # RESULTPATH = "~/ExampleOutput.rds"
   RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/SH171012_VIII_068.rds" #"~/ExampleOutput.rds"
   # RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.rds"
+
+  addReadPosition = FALSE
   
   # options
   binSize = 500
@@ -43,10 +45,11 @@ if (interactive()){
   RESULTPATH = args[5]
 
   binSize = args[6]
+  addReadPosition = as.logical(as.character(args[7]))
   
-  if(length(args) == 8){
-    minPloidy = as.numeric(args[7])
-    maxPloidy = as.numeric(args[8])
+  if(length(args) == 9){
+    minPloidy = as.numeric(args[8])
+    maxPloidy = as.numeric(args[9])
   }else{
     minPloidy = NULL
     maxPloidy = NULL
@@ -115,8 +118,9 @@ hmm_path = base::dirname(RESULTPATH)
 # minPloidy = list(1.7, 5.1); names(minPloidy) = cellnames
 # maxPloidy = list(3.4, 6.9); names(maxPloidy) = cellnames
 # Default ranges without any prior information
-if(is.null(minPloidy)) minPloidy = 1.1
-if(is.null(maxPloidy)) maxPloidy = 8.0
+if(is.null(minPloidy) || is.na(minPloidy)) minPloidy = 1.1
+if(is.null(maxPloidy) || is.na(maxPloidy)) maxPloidy = 8.0
+print(paste0("DEBUG PLOIDY: ", minPloidy))
 
 ploidyWindow = 0.1
 if(species == 'Human'){
@@ -188,6 +192,11 @@ scaledCN = computeMAPD(scaledCN)
 
 # compute information theoretic measures (quality control)
 scaledCN = computeInfotheo(scaledCN)
+
+# add protocol data for EC issues
+if(addReadPosition){
+  scaledCN = readPosition(scaledCN, filePaths)
+}
 
 
 ## Include metadata

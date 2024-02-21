@@ -22,7 +22,7 @@ if (interactive()){
     require(reticulate, quietly=TRUE, warn.conflicts = FALSE)
   })
   
-  reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda/envs/conda_runtime/bin/python")
+  reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda/bin/conda")
   .libPaths("/opt/conda/envs/conda_runtime/lib/R/library")
   BASEDIR="~/"
   breakEarly=FALSE
@@ -48,7 +48,7 @@ if (interactive()){
     require(QDNAseq, quietly = TRUE, warn.conflicts = FALSE)
     require(reticulate, quietly=TRUE, warn.conflicts = FALSE)
   })
-  reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda/envs/conda_runtime/bin/python")
+  reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda/bin/conda")
   BASEDIR="/opt"
   
   # sample subset of data for debugging purposes

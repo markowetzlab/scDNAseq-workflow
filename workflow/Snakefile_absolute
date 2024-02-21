@@ -35,11 +35,14 @@ def helper_dirname(wildcards):
 
 
 include: "rules/qc.smk"
-include: "rules/density.smk"
 include: "rules/scale_scAbsolute.smk"
 include: "rules/combine.smk"
 
-ruleorder: qc > density > scale_scAbsolute > combine
+if config["estimateReadDensity"]:
+    include: "rules/density.smk"
+    ruleorder: qc > density > scale_scAbsolute > combine
+else:
+    ruleorder: qc > scale_scAbsolute > combine
 
 
 rule all:
