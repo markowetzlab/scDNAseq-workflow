@@ -22,7 +22,7 @@ Here is how to use the approach:
 3. Run the second stage of the pipeline (_scUnique_), combining the results from the per-cell analysis and creating a joint analysis of the dataset, including an analysis of recent copy number aberrations (rCNAs).
 
 ## Dependencies
-You must install [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) (we support version 8 and above) and [singularity/apptainer](https://apptainer.org/docs/admin/main/installation.html).
+You must install [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) (we support version 8 and above) and [singularity/apptainer](https://apptainer.org/docs/admin/main/installation.html). To access the containers hosted on AWS ECR public registry, you can use the [AWS CLI application](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 You must clone the *scAbsolute* and *scUnique* GitHub repositories to your local machine. We demonstrate usage with cloning to the home directory, but it is also possible to use another directory, but you will have to modify the BASEDIR variable.
 ```bash
 git clone https://github.com/markowetzlab/scAbsolute.git
