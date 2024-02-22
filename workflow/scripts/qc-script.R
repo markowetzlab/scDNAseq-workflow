@@ -14,15 +14,17 @@ if (interactive()){
   rm(list=ls())
   
   sampleFile = c(
-    "~/scDNAseq-workflow/results/500/PEO1_500.rds",
-    "~/scDNAseq-workflow/results/500/PEO4_500.rds"
+    #"~/scDNAseq-workflow/results/500/PEO1_500.rds",
+    #"~/scDNAseq-workflow/results/500/PEO4_500.rds"
+    "~/scDNAseq-workflow/results/500/PEO1_subset_500.rds",
     
   )
-  sampleName = "PEO1-PEO4"
+  sampleName = "PEO1_subset"
+  #sampleName = "PEO1-PEO4"
   
 }else{
-  sampleName = args[1]
-  sampleFile = args[2]
+  sampleFile = args[1]
+  sampleName = args[2]
 }
 sampleFile = do.call("c", (base::strsplit(sampleFile, split=",")))
 
@@ -203,4 +205,4 @@ ggplot(data = df %>% dplyr::filter(keep)) + geom_histogram(aes(x=ploidy), bins=5
 print("Writing to file.")
 ifelse(!dir.exists(file.path(WORKFLOW_PATH, "results/pass_qc/")), dir.create(file.path(WORKFLOW_PATH, "results/pass_qc/")), FALSE)
 readr::write_tsv(df %>% dplyr::filter(keep) %>% dplyr::arrange(name) %>% dplyr::select(UID, SLX, name),
-                 path=paste0(WORKFLOW_PATH, "results/pass_qc/pass_", sampleName, ".tsv"), append = FALSE, col_names=FALSE)
+                 file=paste0(WORKFLOW_PATH, "results/pass_qc/pass_", sampleName, ".tsv"), append = FALSE, col_names=FALSE)
