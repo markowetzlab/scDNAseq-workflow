@@ -119,9 +119,28 @@ Results are then available in results/sample_name. See vignette-rCNAs for exampl
 export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
 ```
 
+
+**Q: Why are all your bam files named the way they are?**
+
+**A:**  We have a custom naming convention for our data. We recommend following this convention with your own data for compatibility reasons.
+We include the following information in every sample name:
+- Unique sample identifier
+- Library identifier
+- Cell number (padded to 6 digits)
+- Cell tag, i.e., all cell specific information, such as plate and well numbers, custom sequences, and or experimental information
+The different fields are separated by an underscore, and the file name then looks like these examples:
+```
+  [unique sample identifier]_[library identifier]_[cell id]_[cell tag].bam
+  UID-10X-Fibroblast-cell_SLX-00000_000001_AAACCTGAGCAGCCTC-1.bam
+  UID-JBL-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1
+  UID-FML-PEO1-2N_SLX-23003_000288_SINCEL-194-Plate-236-P21-CGACAAGGAT-AAGGCCACCT.bam
+```
+
+
 **Q: What is the input for the programme?**
 
 **A:** Our workflow requires coordinate-sorted bam files (one file per cell) with a minimum read depth of about 200,000 reads per cell. The actual required read depth depends on the sample ploidy and bin size. Knowing these parameters you can then easily compute the required number of reads.
+
 
 **Q: How do I compute the number of reads I should aim for in my experiment?**
 
