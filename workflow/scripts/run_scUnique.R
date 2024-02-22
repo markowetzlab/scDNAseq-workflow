@@ -7,54 +7,54 @@ set.seed(2020)
 
 if (interactive()){
   rm(list=ls())
-  
+
   # it is possible to combine multiple files like this
   sampleFile = c(
     "~/scDNAseq-workflow/results/500/PEO1_500.rds",
     "~/scDNAseq-workflow/results/500/PEO4_500.rds"
   )
-  
+
   RESULTPATH = paste0("~/scDNAseq-workflow/results/", "")
-  
+
   suppressPackageStartupMessages({
     require(QDNAseq, quietly = TRUE, warn.conflicts = FALSE)
     require(reticulate, quietly=TRUE, warn.conflicts = FALSE)
   })
-  
+
   reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda/bin/conda")
   .libPaths("/opt/conda/envs/conda_runtime/lib/R/library")
   BASEDIR="~/"
   breakEarly=FALSE
   change_prob = NULL
-  
+
   # sample subset of data for debugging purposes
   sampleFile = do.call("c", (base::strsplit(sampleFile, split=",")))
-  
+
   if(length(sampleFile) == 1){
-    CN = readRDS(sampleFile) 
+    CN = readRDS(sampleFile)
   }else{
     source(file.path(BASEDIR, "scAbsolute/R/core.R"))
     CN = combineQDNASets(future.apply::future_lapply(sampleFile, readRDS))
   }
-  
+
 }else{
-  
+
   sampleFile = args[1]
   RESULTPATH = args[2]
   change_prob = as.numeric(args[3])
-  
+
   suppressPackageStartupMessages({
     require(QDNAseq, quietly = TRUE, warn.conflicts = FALSE)
     require(reticulate, quietly=TRUE, warn.conflicts = FALSE)
   })
   reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda/bin/conda")
   BASEDIR="/opt"
-  
+
   # sample subset of data for debugging purposes
   sampleFile = do.call("c", (base::strsplit(sampleFile, split=",")))
-  
+
   if(length(sampleFile) == 1){
-    CN = readRDS(sampleFile) 
+    CN = readRDS(sampleFile)
   }else{
     source(file.path(BASEDIR, "scAbsolute/R/core.R"))
     CN = combineQDNASets(future.apply::future_lapply(sampleFile, readRDS))
@@ -72,7 +72,7 @@ require(tensorflow)
 
 # PACKAGE DEPENDENCIES ====
 suppressPackageStartupMessages({
-  
+
   require(devtools, quietly=TRUE, warn.conflicts = FALSE)
   require(future.apply, quietly=TRUE, warn.conflicts = FALSE)
   plan(multicore)
@@ -86,29 +86,29 @@ suppressPackageStartupMessages({
   require(stats, quietly=TRUE, warn.conflicts = FALSE)
   require(dynamicTreeCut, quietly=TRUE, warn.conflicts = FALSE)
   require(S4Vectors, quietly=TRUE, warn.conflicts = FALSE)
-  
+
   require(Biobase, quietly = TRUE, warn.conflicts = FALSE)
   require(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
   require(cowplot, quietly = TRUE, warn.conflicts = FALSE)
   require(matrixStats, quietly = TRUE, warn.conflicts = FALSE)
-  
+
   require(parallel, quietly = TRUE, warn.conflicts = FALSE)
   require(foreach, quietly = TRUE, warn.conflicts = FALSE)
   require(doParallel, quietly = TRUE, warn.conflicts = FALSE)
   options(future.globals.onReference = "error")
-  
+
   # scAbsolute dependencies
   source(file.path(BASEDIR, "scAbsolute/R/core.R"))
   # import combineQDNASets, binsToUseInternal
   source(file.path(BASEDIR, "scAbsolute/R/visualization.R"))
   # visualize individual cells
-  
+
   source(file.path(BASEDIR, "scUnique/R/core.R"))
   source(file.path(BASEDIR, "scUnique/R/segmentation.R"))
   source(file.path(BASEDIR, "scUnique/R/scUnique.R"))
   source(file.path(BASEDIR, "scUnique/R/visualize.R"))
   source(file.path(BASEDIR, "scUnique/R/postprocessing.R"))
-  
+
   use_condaenv("conda_runtime")
 })
 ## Detect non-exportable objects and give an error asap
@@ -147,7 +147,7 @@ stopifnot(all(df$splitPerChromosome) || all(!df$splitPerChromosome))
 splitPerChromosome=df$splitPerChromosome[1]
 
 
-# QC filtering is done prior to this analysis and cells passing quality inspection are described in 
+# QC filtering is done prior to this analysis and cells passing quality inspection are described in
 pass_qc = do.call("c", lapply(list.files(path=file.path(RESULTPATH, "pass_qc/"), pattern="\\.tsv", full.names = TRUE),
                   function(x){readr::read_tsv(x, col_names=c("UID", "SLX", "name"), col_types="ccc")[["name"]]}))
 include_cells = colnames(CN)[colnames(CN) %in% pass_qc]
