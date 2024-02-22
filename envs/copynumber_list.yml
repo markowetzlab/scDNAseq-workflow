@@ -1,0 +1,17 @@
+name: copynumber
+channels:
+  - conda-forge
+  - bioconda
+  - r
+  - defaults
+dependencies:
+  - bioconda::bioconductor-qdnaseq
+  - bioconda::bioconductor-qdnaseq.hg19
+  - bioconda::bioconductor-qdnaseq.mm10
+  - bioconda::bioconductor-complexheatmap
+  - r::r-tidyverse
+  - r::r-ggpubr
+  - conda-forge::r-ggbeeswarm
+  - conda-forge::r-phylogram
+  - conda-forge::r-robustbase
+  - conda-forge::r-viridis
