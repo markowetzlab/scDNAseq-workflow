@@ -11,7 +11,7 @@ dependencies:
   - bioconda::bioconductor-complexheatmap
   - r::r-tidyverse
   - r::r-ggpubr
-  - r::r-ggbeeswarm
+  - conda-forge::r-ggbeeswarm
   - conda-forge::r-phylogram
   - conda-forge::r-ggbeeswarm
   - conda-forge::r-robustbase
