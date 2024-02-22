@@ -89,8 +89,14 @@ conda env create -f envs/copynumber.yml
 conda activate copynumber
 ```
 Run the qc script available in workflow/scripts/qc-script.R, ensuring the cutoffs are reasonable given the plots generated. Some information about the process can be found in the 
-vignette (vignettes/vignette-rCNA). Depending on the outcome (e.g. the ploidy estimates), it might be worth re-running the initial pipeline with more stringent ploidy constraints or an updated bin size.
+vignette (vignettes/vignette-rCNA). Depending on the outcome (the ploidy and rho/rpc estimates, respectively), it might be worth re-running the initial pipeline with more stringent ploidy constraints or an updated bin size.
 All files passing the qc step will be added to a sample-specific TSV file in results/pass_qc. Only cells listed in any one of the files in the pass_qc folder will be included in the subsequent joint analysis step.
+For the tutorial run with the PEO1_subset sample, you can use the example file `config/pass_all_PEO1_subset.tsv` and move it to `results/pass_qc/pass_all.tsv`, to execute the next step of the analysis on all samples in the PEO1_subset dataset. These are all relatively high-quality cells, so it is not really necessary to remove any of them.
+While you will ideally run the `qc-script.R` interactively, it is possible to run it from the command line:
+```bash
+Rscript workflow/scripts/qc-script.R "~/scDNAseq-workflow/results/500/PEO1_subset_500.rds" "PEO1_subset"
+```
+
 
 ### Joint copy number analysis and recent copy number aberration (rCNA) detection
 
