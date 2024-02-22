@@ -107,7 +107,12 @@ snakemake --cores 16 --snakefile workflow/Snakefile_unique \
     --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scUnique:/opt/scUnique -B /home/${USER}/scAbsolute:/opt/scAbsolute"
 ```
 
-Results are then available in results/sample_name. See vignette-rCNAs for examples of how to analyze the results in practice.
+Results are then available in results/sample_name. 
+
+### More examples and explanations
+
+Please see the vignettes folder for more examples and in-depth explanations, particularly the vignette-rCNAs file for examples of how to analyze the results and some examples of plotting the data.
+
 
 
 ## FAQ
