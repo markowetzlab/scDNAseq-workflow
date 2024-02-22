@@ -13,7 +13,10 @@ as soon as it's out
 ```
 - if you use *scUnique*, you should also cite [MEDICC2](https://doi.org/10.1186/s13059-022-02794-9):
 ```
-Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al. MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution. Genome Biol 23, 241 (2022). https://doi.org/10.1186/s13059-022-02794-9
+Kaufmann, T.L., Petkovic, M., Watkins, T.B.K. et al.  
+MEDICC2: whole-genome doubling aware copy-number phylogenies for cancer evolution.  
+Genome Biol 23, 241 (2022).  
+https://doi.org/10.1186/s13059-022-02794-9
 ```
 
 Here is how to use the approach:
@@ -71,10 +74,9 @@ To configure this workflow, modify config/ according to your needs.
 
 Given that the workflow has been properly configured, the **scAbsolute** part can be executed as follows:
 ```bash
-export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
-```
-```bash
-snakemake --cores 32 --snakefile workflow/Snakefile_absolute --software-deployment-method conda apptainer --use-conda --use-singularity --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scAbsolute:/opt/scAbsolute"
+snakemake --cores 16 --snakefile workflow/Snakefile_absolute \
+    --software-deployment-method conda apptainer --use-conda --use-singularity \
+    --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scAbsolute:/opt/scAbsolute"
 ```
 
 ### QC analysis
@@ -94,16 +96,22 @@ All files passing the qc step will be added to a sample-specific TSV file in res
 
 Note that you should not move the output of the first step before running the second step of the pipeline, as this will result in errors in the output file detection. The second part of the pipeline (**scUnique**) can be run as follows:
 ```bash
-export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
-```
-```bash
-snakemake --cores 16 --snakefile workflow/Snakefile_unique --software-deployment-method conda apptainer --use-conda --use-singularity --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scUnique:/opt/scUnique -B /home/${USER}/scAbsolute:/opt/scAbsolute
+snakemake --cores 16 --snakefile workflow/Snakefile_unique \
+    --software-deployment-method conda apptainer --use-conda --use-singularity \
+    --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scUnique:/opt/scUnique -B /home/${USER}/scAbsolute:/opt/scAbsolute"
 ```
 
 Results are then available in results/sample_name. See vignette-rCNAs for examples of how to analyze the results in practice.
 
 
 ## FAQ
+
+**Q: I have issues with the container authentication. What can I do?**
+
+**A:** Try running the command below and ensure you are not pulling from the wrong container registry. AWS ECR has quite a lot of documentation as well.
+```bash
+export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
+```
 
 **Q: What is the input for the programme?**
 
