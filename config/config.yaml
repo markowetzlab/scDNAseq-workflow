@@ -1,12 +1,12 @@
-samples: config/sample_PEO1.tsv #sample_PEO4.tsv
+samples: config/PEO1_subset.tsv #sample_PEO4.tsv
 ##samples: config/samples_trial_human.tsv ##config/samples_trial_mouse.tsv
-sampleName: PEO1 # PEO4
+sampleName: PEO1_subset # PEO4
 binSize: 500 ## single value only
 species: Human ##Mouse
 genome: hg19 ##GRCm38
 estimateReadDensity : False # flag to include read density estimation for detection of WGD
 # requires additional memory, only useful in cases where WGD is suspected
 scAbsolute_img: "docker://public.ecr.aws/k5n6p8b3/scabsolute:v3.8.0"
-scUnique_img: "docker://public.ecr.aws/k5n6p8b3/scunique:v2.1.0"
+scUnique_img: "docker://public.ecr.aws/k5n6p8b3/scunique:v2.1.3"
 qc_img: "docker://public.ecr.aws/k5n6p8b3/biocontainers/samtools:v1.9-4deb_cv1"
 NCORES: 12

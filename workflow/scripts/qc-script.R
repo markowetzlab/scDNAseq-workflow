@@ -14,8 +14,8 @@ if (interactive()){
   rm(list=ls())
   
   sampleFile = c(
-    "~/Data/download/scDNAseq-workflow/results/500/PEO1_500.rds",
-    "~/Data/download/scDNAseq-workflow/results/500/PEO4_500.rds"
+    "~/scDNAseq-workflow/results/500/PEO1_500.rds",
+    "~/scDNAseq-workflow/results/500/PEO4_500.rds"
     
   )
   sampleName = "PEO1-PEO4"

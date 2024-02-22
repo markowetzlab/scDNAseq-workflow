@@ -1,4 +1,4 @@
-## run script for scUnique
+# run script for scUnique
 # scUnique - pipeline with joint copy number inference, FDR correction and rCNA calling for scDNAseq data
 
 ## Variables ####
@@ -10,12 +10,11 @@ if (interactive()){
   
   # it is possible to combine multiple files like this
   sampleFile = c(
-    "~/Data/download/scDNAseq-workflow/results/500/PEO1_500.rds",
-    "~/Data/download/scDNAseq-workflow/results/500/PEO4_500.rds"
+    "~/scDNAseq-workflow/results/500/PEO1_500.rds",
+    "~/scDNAseq-workflow/results/500/PEO4_500.rds"
   )
   
-  sampleName = "PEO1-PEO4"
-  RESULTPATH = paste0("~/Data/download/scDNAseq-workflow/results/", "")
+  RESULTPATH = paste0("~/scDNAseq-workflow/results/", "")
   
   suppressPackageStartupMessages({
     require(QDNAseq, quietly = TRUE, warn.conflicts = FALSE)
