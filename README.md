@@ -5,7 +5,10 @@ This workflow performs absolute copy number calling and detection of recent copy
 Please cite the relevant publications if you use this pipeline:
 - *scAbsolute*:
 ```
-Schneider, Michael P., Amy E. Cullen, Justina Pangonyte, Jason Skelton, Harvey Major, Elke Van Oudenhove, Maria J. Garcia, et al. 2024. ‘scAbsolute: Measuring Single-Cell Ploidy and Replication Status’. Genome Biology 25 (1): 62. https://doi.org/10.1186/s13059-024-03204-y.
+Schneider, Michael P., et al. 2024.
+scAbsolute: Measuring Single-Cell Ploidy and Replication Status.
+Genome Biology 25 (1): 62.
+https://doi.org/10.1186/s13059-024-03204-y.
 ```
 - *scUnique*:
 ```
