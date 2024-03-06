@@ -12,7 +12,7 @@ https://doi.org/10.1186/s13059-024-03204-y.
 ```
 - *scUnique*:
 ```
-as soon as it's out
+we will release the code to use scUnique upon publication. please contact the author if you need earlier access
 ```
 - if you use *scUnique*, you should also cite [MEDICC2](https://doi.org/10.1186/s13059-022-02794-9):
 ```
