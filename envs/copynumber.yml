@@ -1,0 +1,19 @@
+name: copynumber
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base=4.3
+  - bioconductor-biobase=2.62
+  - bioconductor-complexheatmap=2.18
+  - bioconductor-genomicranges=1.54
+  - bioconductor-qdnaseq=1.38
+  - bioconductor-qdnaseq.hg19=1.32
+  - bioconductor-qdnaseq.mm10=1.32
+  - r-robustbase=0.99_2
+  - r-phylogram=2.1
+  - r-tidyverse=2.0
+  - r-ggpubr=0.6
+  - r-ggbeeswarm=0.7
+  - r-viridis=0.6

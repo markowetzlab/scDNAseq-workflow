@@ -1,1 +1,1 @@
-Copyright, 2022, Michael Schneider
+© Copyright, 2022-2024, Michael P. Schneider

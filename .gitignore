@@ -160,8 +160,8 @@ dmypy.json
 *.sif
 
 # Data and Results
-data*
-results*
+./data/*
+./results/*
 
 # Run on Cluster
 run_slurm.sh

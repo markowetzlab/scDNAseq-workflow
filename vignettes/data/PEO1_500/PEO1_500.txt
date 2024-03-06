@@ -1,0 +1,22 @@
+[1] "------------------------------"
+[1] "PROCESSING INFORMATION:"
+[1] "------------------------------"
+[1] "Runtime MEDICC algorithm 0.72403906583786"
+[1] "Runtime MEDICC joint algorithm 3.99486835400263"
+[1] "Runtime probe evidence 0.781723968187968"
+[1] "Runtime program 7.48330461978912"
+[1] "-------"
+[1] "Distribution of copy number states across sample"
+
+           0            1            2            3            4            5 
+0.0029059106 0.2921681478 0.5967922133 0.0962082099 0.0098180279 0.0012893215 
+           6            8 
+0.0006093948 0.0002087742 
+[1] "-------"
+[1] "Total number of cells kept"
+[1] "75 cells (out of 99 cells)"
+[1] "Percentage of cells discarded: 0.242424242424242"
+[1] "-------"
+[1] "-------"
+[1] "/mnt/scratcha/fmlab/schnei01/Data/download/scDNAseq-workflow/results/500/PEO1_500.rds"
+[1] "END"

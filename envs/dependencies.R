@@ -1,0 +1,12 @@
+require(tidyverse)
+require(QDNAseq)
+require(Biobase)
+require(ComplexHeatmap)
+require(ggpubr)
+require(ggbeeswarm)
+
+print(paste0("BASEDIR is set to: ",  BASEDIR))
+source(paste0(BASEDIR, "scAbsolute/R/core.R"))
+source(paste0(BASEDIR, "scAbsolute/R/visualization.R"))
+source(paste0(BASEDIR, "scUnique/R/core.R"))
+source(paste0(BASEDIR, "scUnique/R/visualize.R"))

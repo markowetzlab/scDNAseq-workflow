@@ -4,54 +4,51 @@
 args = commandArgs(trailingOnly=TRUE)
 
 if (interactive()){
-  rm(list=ls()) 
-  
-  # species = "Human"
-  # genome = "hg19"
-  species = "Mouse"
-  genome = "GRCm38" #"mm10" 
-  
-  # bamPath = "~/Data/project1/20-align/"
-  # bamFile = "UID-10X-Andor-2020-48959-MKN-45_SLX-00000_000365_CTAATGGGTTGATCGT-1.bam"
-  bamPath = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/data/align/"#"~/Data/project1/20-align/issues/"
-  bamFile = "SH171012_VIII_068.bam" #mouse
-  # bamFile = "UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.bam" #human
-  
-  # RESULTPATH = "~/ExampleOutput.rds"
-  RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/SH171012_VIII_068.rds" #"~/ExampleOutput.rds"
-  # RESULTPATH = "/home/adr44/rds/hpc-work/scAbsolute/github/scDNAseq-workflow/mouse_compatibility/results/scale/500/individual/UID-CIOV1_SLX-17170_000001_AAAGCAAGTAGAACAT-1.rds"
-  
+  rm(list=ls())
+
+  species = "Human"
+  genome = "hg19"
+#  species = "Mouse"
+#  genome = "GRCm38" #"mm10"
+
+  bamPath = "data/aligned/PEO1_subset/"
+  bamFile = c("UID-FML-PEO1-REP_SLX-23965_000003_SINCEL-211-SC-Plate-276-C1-TGAATG-GGAGAA.bam",
+              "UID-FML-PEO1-REP_SLX-23965_000004_SINCEL-211-SC-Plate-276-D1-ATCTAT-AAGCTA.bam")
+  RESULTPATH = "results/"
+
+  addReadPosition = FALSE
+
   # options
   binSize = 500
-  
+
   minPloidy = 1.1
   maxPloidy = 8.0
 
   #run with conda already configured before opening R
   #reticulate::use_condaenv(condaenv = "rstudio-server", conda = "~/.anaconda3/bin/conda")
   #reticulate::use_condaenv(condaenv = "conda_runtime", conda = "/opt/conda")
-  
-  #BASEDIR="~/scAbsolute"
-  BASEDIR="/home/adr44/rds/hpc-work/scAbsolute/github/scAbsolute" #"~/scAbsolute"
+
+  BASEDIR="~/scAbsolute"
 } else{
-  species = args[1] 
-  genome = args[2] 
-  
+  species = args[1]
+  genome = args[2]
+
   bamPath = args[3]
   bamFile = args[4]
-  
+
   RESULTPATH = args[5]
 
   binSize = args[6]
-  
-  if(length(args) == 8){
-    minPloidy = as.numeric(args[7])
-    maxPloidy = as.numeric(args[8])
+  addReadPosition = as.logical(as.character(args[7]))
+
+  if(length(args) == 9){
+    minPloidy = as.numeric(args[8])
+    maxPloidy = as.numeric(args[9])
   }else{
     minPloidy = NULL
     maxPloidy = NULL
   }
-  
+
   BASEDIR="/opt/scAbsolute"
 }
 
@@ -75,7 +72,6 @@ library(S4Vectors, quietly=TRUE, warn.conflicts = FALSE)
 library(matrixStats, quietly=TRUE, warn.conflicts = FALSE)
 print(paste0("Base directory: ", BASEDIR))
 
-source(file.path(BASEDIR, "data/changepoint/wrap_PELT.R"))
 source(file.path(BASEDIR, "data/changepoint/wrap_PELT.R"))
 source(file.path(BASEDIR, "R/scSegment.R"))
 source(file.path(BASEDIR, "R/scAbsolute.R"))
@@ -104,7 +100,7 @@ splitPerChromosome=TRUE
 optimizeSegmentation=FALSE
 
 max_iterations=101
-change_prob=1e-3 
+change_prob=1e-3
 max_states=9
 
 ## Save data for later processing
@@ -116,13 +112,18 @@ hmm_path = base::dirname(RESULTPATH)
 # minPloidy = list(1.7, 5.1); names(minPloidy) = cellnames
 # maxPloidy = list(3.4, 6.9); names(maxPloidy) = cellnames
 # Default ranges without any prior information
-if(is.null(minPloidy)) minPloidy = 1.1
-if(is.null(maxPloidy)) maxPloidy = 8.0
+if(is.null(minPloidy) || is.na(minPloidy)) minPloidy = 1.1
+if(is.null(maxPloidy) || is.na(maxPloidy)) maxPloidy = 8.0
+print(paste0("DEBUG PLOIDY: ", minPloidy))
 
 ploidyWindow = 0.1
 if(species == 'Human'){
-  ploidyRegion=c(paste0("chr", as.character(seq(1,22))), "chrX")
-  selectRegion=c(paste0("chr", as.character(seq(1,22))), "chrX", "chrY") 
+  #ploidyRegion=c(paste0("chr", as.character(seq(1,22))) , "chrX")
+  #selectRegion=c(paste0("chr", as.character(seq(1,22))), "chrX", "chrY")
+  # we suggest not including X and Y chromosomes for rCNA detection
+  # X chromosome can be useful in case of normal, diploid cells with low coverage, though
+  ploidyRegion=c(paste0("chr", as.character(seq(1,22))))
+  selectRegion=c(paste0("chr", as.character(seq(1,22))))
 } else if(species == "Mouse") {
   ploidyRegion=c(paste0("chr", as.character(seq(1,19))), "chrX")
   selectRegion=c(paste0("chr", as.character(seq(1,19))), "chrX", "chrY")
@@ -157,17 +158,15 @@ scaledCN = scAbsolute(filePaths, method=method, globalModel=globalModel, binSize
            randomSeed=randomSeed, outputPath=RESULTPATH, outputSegmentation=FALSE, debug=TRUE)
 
 ## Debugging and examples
-# 
+#
 # readCounts = readData(filePaths, binSize=binSize, extendedBlacklisting=TRUE,
 #                       filterChromosomes = c("MT"), genome="hg19")
-# 
-# 
 # plotCounts(readCounts[100000:102954,2])
-# 
+#
 # ## check copynumber profile
 # cell = 1
 # plotCopynumber(scaledCN[, cell], ylim=c(0, 15))
-# 
+#
 # ## check fit
 # cell = 1
 # p = plotFit(scaledCN[,cell], scale=TRUE)
@@ -190,6 +189,10 @@ scaledCN = computeMAPD(scaledCN)
 # compute information theoretic measures (quality control)
 scaledCN = computeInfotheo(scaledCN)
 
+# add protocol data for WGD detection
+if(addReadPosition){
+  scaledCN = readPosition(scaledCN, filePaths)
+}
 
 ## Include metadata
 sample_names = rownames(pData(scaledCN))

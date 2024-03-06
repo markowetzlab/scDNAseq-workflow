@@ -1,15 +1,17 @@
 rule scale_scAbsolute:
     input:
-        bam="data/align/{sample}.bam",
-        flagstat="data/align/{sample}.flagstat",
-        bai="data/align/{sample}.bam.bai",
-        position="data/align/{sample}.position.tsv"
+        bam="data/aligned/" + str(config["sampleName"]) + "/{sample}.bam",
+        flagstat="data/aligned/" + str(config["sampleName"]) + "/{sample}.flagstat",
+        bai="data/aligned/" + str(config["sampleName"]) + "/{sample}.bam.bai",
+        position="data/aligned/" + str(config["sampleName"]) + "/{sample}.position.tsv" if config["estimateReadDensity"] else [],
     params:
         prefix=lambda wildcards, input: os.path.dirname(input.bam),
-        filefix=lambda wildcards, input: os.path.basename(input.bam)
+        filefix=lambda wildcards, input: os.path.basename(input.bam),
+        minPloidy=lambda wildcards, input: LOOKUP_PLOIDY[wildcards.sample]["minPloidy"] if wildcards.sample in LOOKUP_PLOIDY else "NNULL",
+        maxPloidy=lambda wildcards, input: LOOKUP_PLOIDY[wildcards.sample]["maxPloidy"] if wildcards.sample in LOOKUP_PLOIDY else "NNULL",
     output:
-        rds="results/scale/"+ str(config["binSize"]) + "/predict/{sample}.rds"
-    singularity:
+        rds="results/" + str(config["binSize"]) + "/" + str(config["sampleName"]) + "/" + "{sample}.rds"
+    container:
         IMAGE
     message:
         "Calling absolute copy number profile for {input}"
@@ -28,5 +30,23 @@ rule scale_scAbsolute:
         type python
         python -c "import tensorflow; import numpy; import pandas;"
         Rscript -e "library(reticulate); reticulate::py_discover_config();"
-        Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" "{config[genome]}" "{params.prefix}" "{params.filefix}" "{output.rds}" "{config[binSize]}" || true
+        if [ "{params.minPloidy}" -eq "NULL" ]; then
+            Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" \
+                                                                  "{config[genome]}" \
+                                                                  "{params.prefix}" \
+                                                                  "{params.filefix}" \
+                                                                  "{output.rds}" \
+                                                                  "{config[binSize]}" \
+                                                                  "{config[estimateReadDensity]}" || true
+        else
+            Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" \
+                                                                  "{config[genome]}" \
+                                                                  "{params.prefix}" \
+                                                                  "{params.filefix}" \
+                                                                  "{output.rds}" \
+                                                                  "{config[binSize]}" \
+                                                                  "{config[estimateReadDensity]}" \
+                                                                  "{params.minPloidy}" \
+                                                                  "{params.maxPloidy}" || true
+        fi
         """
