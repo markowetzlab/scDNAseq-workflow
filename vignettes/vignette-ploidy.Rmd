@@ -43,14 +43,15 @@ To visualize results and conduct the quality controls, we first need to load dep
   WORKFLOW_PATH="~/scDNAseq-workflow/"
   BASEDIR="~/"
   source(paste0(WORKFLOW_PATH, "envs/dependencies.R"))
-  
+
   df_init = dplyr::bind_rows(lapply(
     c("vignettes/data/PEO1-FUCCI-example_downsampled_and_subset.rds"), function(x){
       return(Biobase::pData(readRDS(paste0(WORKFLOW_PATH, x))))
   })) %>%
     tidyr::separate(name, sep="_", into=c("UID", "SLX", "cellid", "celltag"), remove=FALSE) %>%
-    tidyr::separate(celltag, sep="-", into=c("A", "B", "cellcycle_measurement"), extra="drop", remove=FALSE) %>%
-    dplyr::mutate(UID2 = gsub("UID-FML-", "", UID), SLX=gsub("SLX-", "", SLX), UID="PEO1-FUCCI") 
+    tidyr::separate(celltag, sep="-", into=c("A", "B", "cellcycle_measurement"),
+                    extra="drop", remove=FALSE) %>%
+    dplyr::mutate(UID2 = gsub("UID-FML-", "", UID), SLX=gsub("SLX-", "", SLX), UID="PEO1-FUCCI")
 ```
 
 ## Initial analysis
@@ -114,10 +115,11 @@ Finally, we are generally interested in cells that have recently undergone a who
 In the **scAbsolute** manuscript, we have introduced the concept of read density to distinguish these kinds of cells. The measure of read density is encoded in the prediction variable (as we predict an estimate of read density at a copy number state of 2 for all cells).
 
 ```{r,message=FALSE,warning=FALSE}
-ggplot(data = df) + geom_point(aes(x=rpc, y=prediction, color=cellcycle_measurement)) + 
+fig_density_annotated = ggplot(data = df) + geom_point(aes(x=rpc, y=prediction, color=cellcycle_measurement)) + 
   geom_vline(xintercept=100, color="red", linetype="dashed") + 
   ylab("predicted read density") +
   theme_pubclean()
+fig_density_annotated 
   
 ```
 We can clearly see cells separating based on the measure of read density.
@@ -129,24 +131,29 @@ This is also a way to independently verify that the ploidy estimation procedure 
 ```{r,message=FALSE,warning=FALSE}
 # create read density model
 model <- robustbase::lmrob(prediction ~ I(rpc) + I(rpc^2), data = df %>% dplyr::filter(rpc > 100))
-summary(model)
+#summary(model)
 
 # save predictions of the model in the new data frame 
-predicted_df <- data.frame(density_pred = predict(model, df), rpc=df$rpc, density_measured=df$prediction, groundtruth_cellcycle=df$cellcycle_measurement)
+predicted_df <- data.frame(density_pred = predict(model, df),
+                           rpc=df$rpc, density_measured=df$prediction,
+                           groundtruth_cellcycle=df$cellcycle_measurement)
 
-ggplot(data = df) + geom_point(aes(x=rpc, y=prediction, color=prediction.quality)) + 
+fig_density = ggplot(data = df) + geom_point(aes(x=rpc, y=prediction, color=prediction.quality)) +
   geom_vline(xintercept=100, color="red", linetype="dashed") + 
-  geom_line(color='red',data = predicted_df, aes(x=rpc, y=density_pred))
+  geom_line(color='red',data = predicted_df, aes(x=rpc, y=density_pred)) +
   theme_pubclean()
+fig_density
 
 predicted_df$residuals = predicted_df$density_pred - predicted_df$density_measured
 
-ggplot(data = predicted_df %>% dplyr::filter(rpc > 100)) +
+fig_residual = ggplot(data = predicted_df %>% dplyr::filter(rpc > 100)) +
   geom_point(aes(x=rpc, y=residuals)) +
   geom_hline(yintercept=-0.0025, color="red") +
   theme_pubclean()
+fig_residual
 
-table(predicted_df$residuals < -0.0025, predicted_df$groundtruth_cellcycle, predicted_df$rpc > 100)
+table(predicted_df$residuals < -0.0025, predicted_df$groundtruth_cellcycle,
+      predicted_df$rpc > 100)
 
 ```
 
