@@ -147,7 +147,7 @@ The different fields are separated by an underscore, and the file name then look
 
 **Q: What is the input for the programme?**
 
-**A:** Our workflow requires coordinate-sorted bam files (one file per cell) with a minimum read depth of about 200,000 reads per cell. The actual required read depth depends on the sample ploidy and bin size. Knowing these parameters you can then easily compute the required number of reads.
+**A:** Our workflow requires **coordinate-sorted and duplicate-marked** bam files (one file per cell) with a minimum read depth of about 200,000 reads per cell. The actual required read depth depends on the sample ploidy and bin size. Knowing these parameters you can then easily compute the required number of reads.
 
 
 **Q: How do I compute the number of reads I should aim for in my experiment?**
