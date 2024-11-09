@@ -122,10 +122,7 @@ Please see the vignettes folder for more examples and in-depth explanations, par
 
 **Q: I have issues with the container authentication. What can I do?**
 
-**A:** Try running the command below and ensure you are not pulling from the wrong container registry. AWS ECR has quite a lot of documentation as well.
-```bash
-export SINGULARITY_DOCKER_USERNAME=AWS SINGULARITY_DOCKER_PASSWORD=$(aws ecr-public get-login-password --region us-east-1)
-```
+**A:** Try running the command below and ensure you are not pulling from the wrong container registry. First, we recently moved to the public docker hub registry from AWS, so make sure you are pulling from the correct registry.
 
 
 **Q: Why are all your bam files named the way they are?**
