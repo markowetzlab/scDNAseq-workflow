@@ -150,6 +150,8 @@ stopifnot(all(file.exists(filePaths)))
 
 
 ## run the core algorithm - using scAbsolute wrapper function
+tryCatch({
+
 scaledCN = scAbsolute(filePaths, method=method, globalModel=globalModel, binSize=binSize, species=species, genome=genome,
            minLength=minLength, batchSize=1, testStatistic=testStatistic, limitPloidy=limitPloidy,
            minPloidy=minPloidy, maxPloidy=maxPloidy, ploidyWindow=ploidyWindow, ploidyRegion=ploidyRegion, selectRegion=selectRegion,
@@ -177,20 +179,34 @@ scaledCN = scAbsolute(filePaths, method=method, globalModel=globalModel, binSize
 
 ## store metadata ====
 
-# NOTE add whole genome values (in case of restricted ploidy calculation via ploidyRegion)
-scaledCN = computeRPC(scaledCN, rpc_value="rpc.all", ploidy_value="ploidy.all")
+# Check for failed cells (rpc=0, failure_reason set) - skip QC metrics for these
+cell_passed = pData(scaledCN)$rpc > 0.0
 
-# compute gini coefficient (quality control)
-scaledCN = computeGini(scaledCN)
+if(any(cell_passed)){
+  # NOTE add whole genome values (in case of restricted ploidy calculation via ploidyRegion)
+  scaledCN = computeRPC(scaledCN, rpc_value="rpc.all", ploidy_value="ploidy.all")
 
-# compute MAPD coefficient (quality control)
-scaledCN = computeMAPD(scaledCN)
+  # compute gini coefficient (quality control)
+  scaledCN = computeGini(scaledCN)
 
-# compute information theoretic measures (quality control)
-scaledCN = computeInfotheo(scaledCN)
+  # compute MAPD coefficient (quality control)
+  scaledCN = computeMAPD(scaledCN)
+
+  # compute information theoretic measures (quality control)
+  scaledCN = computeInfotheo(scaledCN)
+}
+
+if(any(!cell_passed)){
+  failed_names = pData(scaledCN)$name[!cell_passed]
+  reasons = pData(scaledCN)$failure_reason[!cell_passed]
+  for(i in seq_along(failed_names)){
+    warning(paste0("Skipping QC metrics for failed cell: ", failed_names[i],
+                   " (failure_reason=", reasons[i], ")"))
+  }
+}
 
 # add protocol data for WGD detection
-if(addReadPosition){
+if(addReadPosition && any(cell_passed)){
   scaledCN = readPosition(scaledCN, filePaths)
 }
 
@@ -248,6 +264,13 @@ pData(scaledCN) = description
 ## Save data for later processing
 if(!dir.exists(dirname(RESULTPATH))) dir.create(dirname(RESULTPATH), recursive = TRUE)
 saveRDS(scaledCN, file=RESULTPATH)
+
+}, error = function(e) {
+  warning(paste0("scAbsolute hard failure: ", conditionMessage(e)))
+  # Create a zero-byte file so Snakemake's output requirement is satisfied.
+  # merge.R's empty-file check will remove it and record it as "process_crash".
+  file.create(RESULTPATH)
+})
 
 ## Reproducibility info
 devtools::session_info()

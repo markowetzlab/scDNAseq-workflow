@@ -26,6 +26,8 @@ if (length(args) >= 3){
   f = NULL
 }
 
+filesToRemove <- character(0)
+
 if (dir.exists(d) && (is.null(f) || !file.exists(f))){
   # merge based on filename ending (f) in folder (d) to file args[1]
   setwd(d)
@@ -34,20 +36,20 @@ if (dir.exists(d) && (is.null(f) || !file.exists(f))){
   # merge all files in args[2:end] to file args[1]
   stopifnot(all(endsWith(rdsFiles, ".rds")))
   stopifnot(all(file.exists(rdsFiles)))
-  
+
   if(indexSort){
     rdsFiles = sort(rdsFiles, decreasing=FALSE)
   }
-  
-  filesToRemove <- character(0)  # Create an empty vector to store files to remove
+
+  # Remove truly empty files (process crashed before any output was written)
   for (file in rdsFiles) {
     if (file.info(file)$size == 0) {
       file.remove(file)
-      filesToRemove <- c(filesToRemove, file)  # Add the file to the filesToRemove vector
-      cat("File removed:", file, "\n")
+      filesToRemove <- c(filesToRemove, file)
+      cat("Empty file removed (process crash):", file, "\n")
     }
   }
-  rdsFiles <- setdiff(rdsFiles, filesToRemove)  # Remove the files from rdsFiles variable
+  rdsFiles <- setdiff(rdsFiles, filesToRemove)
 
 }
 
@@ -61,5 +63,14 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
   mergedRDS = combineQDNASets(unlist(rdsData))
 }
 
-write.csv(filesToRemove, file =paste0(dirname(args[1]),"/failed_cells.csv"), row.names = FALSE, col.names = FALSE)
+# Write failure report: crashed files + cells with failure_reason in pData
+crashed_cells = data.frame(name=filesToRemove, failure_reason="process_crash", stringsAsFactors=FALSE)
+if(!is.data.frame(mergedRDS) && "failure_reason" %in% colnames(Biobase::pData(mergedRDS))){
+  pd = Biobase::pData(mergedRDS)
+  pdata_failed = pd[!is.na(pd$failure_reason), c("name", "failure_reason")]
+  failed_report = rbind(crashed_cells, pdata_failed)
+}else{
+  failed_report = crashed_cells
+}
+write.csv(failed_report, file=paste0(dirname(args[1]), "/failed_cells.csv"), row.names=FALSE)
 saveRDS(mergedRDS, file = args[1])
