@@ -30,7 +30,7 @@ rule scale_scAbsolute:
         type python
         python -c "import tensorflow; import numpy; import pandas;"
         Rscript -e "library(reticulate); reticulate::py_discover_config();"
-        if [ "{params.minPloidy}" -eq "NULL" ]; then
+        if [ "{params.minPloidy}" = "NNULL" ]; then
             Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" \
                                                                   "{config[genome]}" \
                                                                   "{params.prefix}" \
