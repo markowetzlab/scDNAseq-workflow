@@ -43,10 +43,11 @@ if (dir.exists(d) && (is.null(f) || !file.exists(f))){
 
   # Remove truly empty files (process crashed before any output was written)
   for (file in rdsFiles) {
-    if (file.info(file)$size == 0) {
+    size <- file.info(file)$size
+    if (is.na(size) || size == 0) {
       file.remove(file)
       filesToRemove <- c(filesToRemove, file)
-      cat("Empty file removed (process crash):", file, "\n")
+      cat("Empty/unreadable file removed (process crash):", file, "\n")
     }
   }
   rdsFiles <- setdiff(rdsFiles, filesToRemove)
