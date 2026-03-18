@@ -84,28 +84,41 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
   # Ensure unique sample names across all cells. combineQDNASets fails when
   # two cells share a name because AnnotatedDataFrame deduplicates pData
   # rownames while assayData cbind does not, breaking identical() check.
-  all_adata_names <- as.character(unlist(lapply(rdsData, function(obj) {
-    if (!is(obj, "QDNAseqCopyNumbers")) return(NA_character_)
+  # Build a per-object name list so flat-vector indices stay aligned.
+  adata_names_per_obj <- lapply(rdsData, function(obj) {
+    if (!is(obj, "QDNAseqCopyNumbers")) return(character(0))
     colnames(Biobase::assayDataElement(obj, "copynumber"))
-  })))
+  })
+  all_adata_names <- unlist(adata_names_per_obj)
   unique_names <- make.unique(all_adata_names, sep=".")
   if (!identical(all_adata_names, unique_names)) {
-    changed <- which(all_adata_names != unique_names)
-    cat("Deduplicating", length(changed), "cell name(s):\n")
-    for (i in changed) {
-      cat(sprintf("  cell %d: '%s' -> '%s'\n", i, all_adata_names[i], unique_names[i]))
-      obj <- rdsData[[i]]
-      # Update every assay slot colname
-      for (slot_name in names(Biobase::assayData(obj))) {
-        m <- Biobase::assayDataElement(obj, slot_name)
-        if (is.matrix(m)) { colnames(m) <- unique_names[i]; Biobase::assayDataElement(obj, slot_name) <- m }
+    n_changed <- sum(all_adata_names != unique_names)
+    cat("Deduplicating", n_changed, "cell name(s):\n")
+    pos <- 1L
+    for (i in seq_along(rdsData)) {
+      k <- length(adata_names_per_obj[[i]])
+      if (k == 0L) next
+      obj_old <- adata_names_per_obj[[i]]
+      obj_new <- unique_names[pos:(pos + k - 1L)]
+      if (!identical(obj_old, obj_new)) {
+        for (j in seq_len(k)) {
+          cat(sprintf("  obj %d col %d: '%s' -> '%s'\n", i, j, obj_old[j], obj_new[j]))
+        }
+        obj <- rdsData[[i]]
+        for (slot_name in names(Biobase::assayData(obj))) {
+          m <- Biobase::assayDataElement(obj, slot_name)
+          if (is.matrix(m) && ncol(m) == k) {
+            colnames(m) <- obj_new
+            Biobase::assayDataElement(obj, slot_name) <- m
+          }
+        }
+        pd <- Biobase::pData(obj)
+        rownames(pd) <- obj_new
+        pd[["name"]] <- obj_new
+        Biobase::pData(obj) <- pd
+        rdsData[[i]] <- obj
       }
-      # Update pData rowname and name column
-      pd <- Biobase::pData(obj)
-      rownames(pd) <- unique_names[i]
-      pd[["name"]] <- unique_names[i]
-      Biobase::pData(obj) <- pd
-      rdsData[[i]] <- obj
+      pos <- pos + k
     }
   }
 
