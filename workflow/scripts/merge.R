@@ -113,6 +113,7 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
           m <- ad[[slot_name]]
           if (is.matrix(m) && ncol(m) == k) {
             colnames(m) <- obj_new
+            unlockBinding(slot_name, ad)
             assign(slot_name, m, envir=ad)
           }
         }
