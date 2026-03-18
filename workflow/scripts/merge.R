@@ -165,7 +165,7 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
 }
 
 # Write failure report: crashed files + cells with failure_reason in pData
-crashed_cells = data.frame(name=filesToRemove, failure_reason="process_crash", stringsAsFactors=FALSE)
+crashed_cells = data.frame(name=filesToRemove, failure_reason=rep("process_crash", length(filesToRemove)), stringsAsFactors=FALSE)
 if(!is.data.frame(mergedRDS) && "failure_reason" %in% colnames(Biobase::pData(mergedRDS))){
   pd = Biobase::pData(mergedRDS)
   pdata_failed = pd[!is.na(pd$failure_reason), c("name", "failure_reason")]
