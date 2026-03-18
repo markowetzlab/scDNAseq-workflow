@@ -83,7 +83,26 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
 
   # alternative command, but issues with NaN values in pData:
   #mergedRDS = do.call(BiocGenerics::combine, rdsData)
-  mergedRDS = combineQDNASets(rdsData)
+  mergedRDS = tryCatch(
+    combineQDNASets(rdsData),
+    error = function(e) {
+      if (grepl("sampleNames differ", conditionMessage(e))) {
+        cat("combineQDNASets failed: sampleNames differ — diagnosing per-cell objects:\n")
+        for (i in seq_along(rdsData)) {
+          obj <- rdsData[[i]]
+          if (!is(obj, "QDNAseqCopyNumbers")) next
+          an <- colnames(Biobase::assayDataElement(obj, "copynumber"))
+          pn <- rownames(Biobase::pData(obj))
+          nm <- Biobase::pData(obj)[["name"]]
+          if (!identical(an, pn)) {
+            cat(sprintf("  [%d] MISMATCH — assayData: '%s'  pData rowname: '%s'  pData$name: '%s'\n",
+                        i, an, pn, nm))
+          }
+        }
+      }
+      stop(e)
+    }
+  )
 }
 
 # Write failure report: crashed files + cells with failure_reason in pData
