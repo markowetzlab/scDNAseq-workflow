@@ -87,17 +87,30 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
     combineQDNASets(rdsData),
     error = function(e) {
       if (grepl("sampleNames differ", conditionMessage(e))) {
-        cat("combineQDNASets failed: sampleNames differ — diagnosing per-cell objects:\n")
-        for (i in seq_along(rdsData)) {
-          obj <- rdsData[[i]]
-          if (!is(obj, "QDNAseqCopyNumbers")) next
-          an <- colnames(Biobase::assayDataElement(obj, "copynumber"))
-          pn <- rownames(Biobase::pData(obj))
-          nm <- Biobase::pData(obj)[["name"]]
-          if (!identical(an, pn)) {
-            cat(sprintf("  [%d] MISMATCH — assayData: '%s'  pData rowname: '%s'  pData$name: '%s'\n",
-                        i, an, pn, nm))
+        # Replicate what combineQDNASets does to find the mismatch
+        qdna_list <- Filter(function(o) is(o, "QDNAseqCopyNumbers"), rdsData)
+        combined_adata_names <- unlist(lapply(qdna_list, function(o)
+          colnames(Biobase::assayDataElement(o, "copynumber"))))
+        combined_pdata_names <- unlist(lapply(qdna_list, function(o)
+          rownames(Biobase::pData(o))))
+        cat("combineQDNASets failed: sampleNames differ\n")
+        cat("  combined assayData colnames (first 5):",
+            paste(head(combined_adata_names, 5), collapse=", "), "\n")
+        cat("  combined pData rownames   (first 5):",
+            paste(head(combined_pdata_names, 5), collapse=", "), "\n")
+        mismatch_idx <- which(!mapply(identical, combined_adata_names, combined_pdata_names))
+        if (length(mismatch_idx) > 0) {
+          cat("  mismatched positions:", paste(head(mismatch_idx, 10), collapse=", "), "\n")
+          for (i in head(mismatch_idx, 5)) {
+            cat(sprintf("    [%d] assayData='%s'  pData rowname='%s'\n",
+                        i, combined_adata_names[i], combined_pdata_names[i]))
           }
+        } else {
+          # names match per-element but identical() on full vectors fails — check lengths
+          cat("  lengths: assayData", length(combined_adata_names),
+              " pData", length(combined_pdata_names), "\n")
+          cat("  pData ncol per cell (first 5):",
+              paste(head(sapply(qdna_list, function(o) ncol(Biobase::pData(o))), 5), collapse=", "), "\n")
         }
       }
       stop(e)
