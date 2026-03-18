@@ -105,11 +105,15 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
           cat(sprintf("  obj %d col %d: '%s' -> '%s'\n", i, j, obj_old[j], obj_new[j]))
         }
         obj <- rdsData[[i]]
-        for (slot_name in names(Biobase::assayData(obj))) {
-          m <- Biobase::assayDataElement(obj, slot_name)
+        # Update all assay slots directly via the environment to avoid
+        # Biobase's cross-slot dimname validation, which fires when slots
+        # are updated one-by-one (each update checks against the others).
+        ad <- Biobase::assayData(obj)
+        for (slot_name in ls(ad)) {
+          m <- ad[[slot_name]]
           if (is.matrix(m) && ncol(m) == k) {
             colnames(m) <- obj_new
-            Biobase::assayDataElement(obj, slot_name) <- m
+            assign(slot_name, m, envir=ad)
           }
         }
         pd <- Biobase::pData(obj)
