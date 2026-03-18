@@ -84,10 +84,10 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
   # Ensure unique sample names across all cells. combineQDNASets fails when
   # two cells share a name because AnnotatedDataFrame deduplicates pData
   # rownames while assayData cbind does not, breaking identical() check.
-  all_adata_names <- sapply(rdsData, function(obj) {
+  all_adata_names <- as.character(unlist(lapply(rdsData, function(obj) {
     if (!is(obj, "QDNAseqCopyNumbers")) return(NA_character_)
     colnames(Biobase::assayDataElement(obj, "copynumber"))
-  })
+  })))
   unique_names <- make.unique(all_adata_names, sep=".")
   if (!identical(all_adata_names, unique_names)) {
     changed <- which(all_adata_names != unique_names)
