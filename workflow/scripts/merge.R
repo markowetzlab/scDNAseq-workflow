@@ -81,6 +81,34 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
     return(obj)
   })
 
+  # Ensure unique sample names across all cells. combineQDNASets fails when
+  # two cells share a name because AnnotatedDataFrame deduplicates pData
+  # rownames while assayData cbind does not, breaking identical() check.
+  all_adata_names <- sapply(rdsData, function(obj) {
+    if (!is(obj, "QDNAseqCopyNumbers")) return(NA_character_)
+    colnames(Biobase::assayDataElement(obj, "copynumber"))
+  })
+  unique_names <- make.unique(all_adata_names, sep=".")
+  if (!identical(all_adata_names, unique_names)) {
+    changed <- which(all_adata_names != unique_names)
+    cat("Deduplicating", length(changed), "cell name(s):\n")
+    for (i in changed) {
+      cat(sprintf("  cell %d: '%s' -> '%s'\n", i, all_adata_names[i], unique_names[i]))
+      obj <- rdsData[[i]]
+      # Update every assay slot colname
+      for (slot_name in names(Biobase::assayData(obj))) {
+        m <- Biobase::assayDataElement(obj, slot_name)
+        if (is.matrix(m)) { colnames(m) <- unique_names[i]; Biobase::assayDataElement(obj, slot_name) <- m }
+      }
+      # Update pData rowname and name column
+      pd <- Biobase::pData(obj)
+      rownames(pd) <- unique_names[i]
+      pd[["name"]] <- unique_names[i]
+      Biobase::pData(obj) <- pd
+      rdsData[[i]] <- obj
+    }
+  }
+
   # alternative command, but issues with NaN values in pData:
   #mergedRDS = do.call(BiocGenerics::combine, rdsData)
   mergedRDS = tryCatch(
