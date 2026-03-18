@@ -58,10 +58,32 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
   rdsData = base::lapply(rdsFiles, readRDS)#, USE.NAMES = FALSE)
   mergedRDS = do.call(rbind, rdsData)
 } else {
-  rdsData = base::sapply(rdsFiles, readRDS, USE.NAMES = FALSE)  
-  # alternative command, but issues with NaN values in pData: 
+  rdsData = base::sapply(rdsFiles, readRDS, USE.NAMES = FALSE)
+
+  # Repair any per-cell objects where assayData colnames diverged from pData
+  # rownames (can happen silently via pData<- assignments in scAbsolute).
+  # Use pData$name as the canonical cell identifier set by QDNAseq.
+  rdsData = lapply(rdsData, function(obj) {
+    if (!is(obj, "QDNAseqCopyNumbers")) return(obj)
+    canonical <- Biobase::pData(obj)[["name"]]
+    adata_names <- colnames(Biobase::assayDataElement(obj, "copynumber"))
+    pdata_rownames <- rownames(Biobase::pData(obj))
+    if (!identical(adata_names, pdata_rownames)) {
+      cat("Repairing sampleName mismatch for cell:", canonical, "\n")
+      cat("  assayData colname :", adata_names, "\n")
+      cat("  pData rowname     :", pdata_rownames, "\n")
+      # Fix pData rownames to match assayData colnames (QDNAseq sets both
+      # to basename(bam) without .bam; assayData colnames are more reliable).
+      pd <- Biobase::pData(obj)
+      rownames(pd) <- adata_names
+      Biobase::pData(obj) <- pd
+    }
+    return(obj)
+  })
+
+  # alternative command, but issues with NaN values in pData:
   #mergedRDS = do.call(BiocGenerics::combine, rdsData)
-  mergedRDS = combineQDNASets(unlist(rdsData))
+  mergedRDS = combineQDNASets(rdsData)
 }
 
 # Write failure report: crashed files + cells with failure_reason in pData
