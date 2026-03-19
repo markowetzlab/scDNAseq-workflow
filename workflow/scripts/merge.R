@@ -27,6 +27,7 @@ if (length(args) >= 3){
 }
 
 filesToRemove <- character(0)
+missing_files <- character(0)
 
 if (dir.exists(d) && (is.null(f) || !file.exists(f))){
   # merge based on filename ending (f) in folder (d) to file args[1]
@@ -35,7 +36,16 @@ if (dir.exists(d) && (is.null(f) || !file.exists(f))){
 }else{
   # merge all files in args[2:end] to file args[1]
   stopifnot(all(endsWith(rdsFiles, ".rds")))
-  stopifnot(all(file.exists(rdsFiles)))
+
+  # Track missing files — Snakemake removes outputs of failed jobs, so these
+  # cells ran but their job failed and the output was cleaned up.
+  missing_files <- rdsFiles[!file.exists(rdsFiles)]
+  if (length(missing_files) > 0) {
+    cat("Missing output files (job failed, cleaned up by Snakemake):\n")
+    for (f in missing_files) cat(" ", f, "\n")
+    filesToRemove <- c(filesToRemove, missing_files)
+  }
+  rdsFiles <- setdiff(rdsFiles, missing_files)
 
   if(indexSort){
     rdsFiles = sort(rdsFiles, decreasing=FALSE)
@@ -164,8 +174,12 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
   )
 }
 
-# Write failure report: crashed files + cells with failure_reason in pData
-crashed_cells = data.frame(name=filesToRemove, failure_reason=rep("process_crash", length(filesToRemove)), stringsAsFactors=FALSE)
+# Write failure report: missing/crashed files + cells with failure_reason in pData
+crashed_cells = data.frame(
+  name = filesToRemove,
+  failure_reason = ifelse(filesToRemove %in% missing_files, "missing_output", "process_crash"),
+  stringsAsFactors = FALSE
+)
 if(!is.data.frame(mergedRDS) && "failure_reason" %in% colnames(Biobase::pData(mergedRDS))){
   pd = Biobase::pData(mergedRDS)
   pdata_failed = pd[!is.na(pd$failure_reason), c("name", "failure_reason")]
@@ -173,5 +187,10 @@ if(!is.data.frame(mergedRDS) && "failure_reason" %in% colnames(Biobase::pData(me
 }else{
   failed_report = crashed_cells
 }
-write.csv(failed_report, file=paste0(dirname(args[1]), "/failed_cells.csv"), row.names=FALSE)
+failed_csv = sub("\\.rds$", "_failed_cells.csv", args[1])
+write.csv(failed_report, file=failed_csv, row.names=FALSE)
+if (nrow(failed_report) > 0) {
+  cat("Failed cells written to:", failed_csv, "\n")
+  print(failed_report)
+}
 saveRDS(mergedRDS, file = args[1])
