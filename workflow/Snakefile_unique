@@ -8,6 +8,7 @@ import pandas as pd
 import os
 
 configfile: "config/config.yaml"
+shell.executable("/bin/bash")
 assert(isinstance(config["binSize"], int))
 IMAGE_scUnique = config["scUnique_img"]
 
