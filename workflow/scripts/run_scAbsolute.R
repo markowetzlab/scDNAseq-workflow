@@ -194,6 +194,27 @@ if(any(cell_passed)){
 
   # compute information theoretic measures (quality control)
   scaledCN = computeInfotheo(scaledCN)
+} else {
+  # Add NA placeholders so pData columns match those of successfully processed cells.
+  # Without this, merge.R's combineQDNASets call fails with "inconsistent metadata"
+  # because failed cells are missing the QC columns added above.
+  pd = Biobase::pData(scaledCN)
+  pd[["rpc.old"]]          <- NA_real_
+  pd[["rpc.all"]]          <- NA_real_
+  pd[["ploidy.all"]]       <- NA_real_
+  pd[["gini"]]             <- NA_real_
+  pd[["gini_normalized"]]  <- NA_real_
+  pd[["mapd"]]             <- NA_real_
+  if(!is.null(Biobase::featureData(scaledCN)[["replicationTiming"]])){
+    pd[["cellcycle.cmi_xy"]]  <- NA_real_
+    pd[["cellcycle.cmi_yrT"]] <- NA_real_
+    pd[["mi.cmi_yGC"]]        <- NA_real_
+    pd[["mi.yGC"]]            <- NA_real_
+    pd[["mi.cmi_xy"]]         <- NA_real_
+    pd[["mi.xy"]]             <- NA_real_
+    pd[["mi.xm"]]             <- NA_real_
+  }
+  Biobase::pData(scaledCN) <- pd
 }
 
 if(any(!cell_passed)){

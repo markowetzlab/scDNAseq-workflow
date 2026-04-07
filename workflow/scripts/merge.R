@@ -62,6 +62,15 @@ if (dir.exists(d) && (is.null(f) || !file.exists(f))){
   }
   rdsFiles <- setdiff(rdsFiles, filesToRemove)
 
+  # Write partial failure report now (missing/crashed files) so it's never lost
+  # if the merge step crashes. It will be overwritten with a complete report below.
+  failed_csv = sub("\\.rds$", "_failed_cells.csv", args[1])
+  early_report = data.frame(
+    name = filesToRemove,
+    failure_reason = ifelse(filesToRemove %in% missing_files, "missing_output", "process_crash"),
+    stringsAsFactors = FALSE
+  )
+  write.csv(early_report, file=failed_csv, row.names=FALSE)
 }
 
 if (is.data.frame(readRDS(rdsFiles[[1]]))) {
@@ -169,12 +178,26 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
               paste(head(sapply(qdna_list, function(o) ncol(Biobase::pData(o))), 5), collapse=", "), "\n")
         }
       }
+      if (grepl("inconsistent metadata", conditionMessage(e), ignore.case=TRUE)) {
+        # Failed cells lack QC pData columns (rpc.all, gini, mapd, etc.) that passed
+        # cells have. This should be fixed in run_scAbsolute.R (NA placeholders), but
+        # fall back to reduceMetadata=TRUE so the merge still succeeds.
+        qdna_list <- Filter(function(o) is(o, "QDNAseqCopyNumbers"), rdsData)
+        col_counts <- sapply(qdna_list, function(o) ncol(Biobase::pData(o)))
+        cat("combineQDNASets failed: inconsistent pData column counts\n")
+        cat("  column counts (unique):", paste(unique(col_counts), collapse=", "), "\n")
+        cells_short <- names(col_counts)[col_counts < max(col_counts)]
+        cat("  cells with fewer columns (first 5):", paste(head(cells_short, 5), collapse=", "), "\n")
+        cat("  retrying with reduceMetadata=TRUE — some pData columns will be dropped\n")
+        return(combineQDNASets(rdsData, reduceMetadata=TRUE))
+      }
       stop(e)
     }
   )
 }
 
-# Write failure report: missing/crashed files + cells with failure_reason in pData
+# Write complete failure report: missing/crashed files + cells with failure_reason in pData.
+# (A partial report with just crashed/missing cells was already written above; this overwrites it.)
 crashed_cells = data.frame(
   name = filesToRemove,
   failure_reason = ifelse(filesToRemove %in% missing_files, "missing_output", "process_crash"),
@@ -187,7 +210,7 @@ if(!is.data.frame(mergedRDS) && "failure_reason" %in% colnames(Biobase::pData(me
 }else{
   failed_report = crashed_cells
 }
-failed_csv = sub("\\.rds$", "_failed_cells.csv", args[1])
+if(!exists("failed_csv")) failed_csv = sub("\\.rds$", "_failed_cells.csv", args[1])
 write.csv(failed_report, file=failed_csv, row.names=FALSE)
 if (nrow(failed_report) > 0) {
   cat("Failed cells written to:", failed_csv, "\n")
