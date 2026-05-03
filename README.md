@@ -82,6 +82,10 @@ snakemake --cores 16 --snakefile workflow/Snakefile_absolute \
     --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scAbsolute:/opt/scAbsolute"
 ```
 
+This command should automatically bind your current working directory into the container's current working directory so that the container has access to
+this repository's code and data which it needs run scAbsolute. If errors are generated related to lacking access to needed code or scripts this problem
+could be resolved by appending ` -B ${PWD}:${PWD}` to `--singularity-args` in the above command.
+
 ### QC analysis
 
 Please take the time to analyze the data (the qc script to be used for this step is available at scripts/qc-script.R)
@@ -110,7 +114,10 @@ snakemake --cores 16 --snakefile workflow/Snakefile_unique \
     --singularity-args "-B /home/${USER}/.cache -B /home/${USER}/scUnique:/opt/scUnique -B /home/${USER}/scAbsolute:/opt/scAbsolute"
 ```
 
-Results are then available in results/sample_name. 
+Results are then available in results/sample_name.
+
+Similarly to guidance on use of the scAbsolute container above, incorrect workspace binding into the container can be solved by appending ` -B ${PWD}:${PWD}` into
+`--singularity-args`
 
 ### More examples and explanations
 
