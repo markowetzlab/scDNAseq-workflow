@@ -31,7 +31,7 @@ sampleFile = do.call("c", (base::strsplit(sampleFile, split=",")))
 ## Setup ====
 BASEDIR="~/"
 BASEDIR=normalizePath(BASEDIR)
-WORKFLOW_PATH="~/scDNAseq-workflow/"
+WORKFLOW_PATH = if (interactive()) "~/scDNAseq-workflow/" else normalizePath(getwd())
 require(QDNAseq, quietly = TRUE, warn.conflicts = FALSE)
 require(ggbeeswarm, quietly = TRUE, warn.conflicts = FALSE)
 require(ggpubr, quietly = TRUE, warn.conflicts = FALSE)
