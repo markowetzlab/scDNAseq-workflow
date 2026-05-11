@@ -178,6 +178,11 @@ Finally, another scenario. Assume we have sequenced a precious tumour sample wit
 **A:** It's not possible to run the workflow on very sparse datasets, as *scAbsolute* requires a sufficient number of bins to fit the Gaussians. The maximum bin size supported by the entire workflow is 1MB. The minimum bin size mainly depends on and is limited by the sequencing depth. From experience, any cells with substantially less than 300,000 reads are unsuitable for this approach, and should be excluded from the analysis.
 
 
+**Q: Can I use hg38/GRCh38 instead of hg19?**
+
+**A:** Partial support only. Set `genome: hg38` in `config/config.yaml`, and also add `extendedBlacklisting = FALSE` to the `scAbsolute()` call in `workflow/scripts/run_scAbsolute.R` (line ~155) — otherwise the pipeline will stop with an error because the hg38 blacklist has not been implemented. Note that replication timing correction is also unreliable for hg38, as the pre-computed values are based on GRCh37 coordinates. Custom bin sizes (200, 2000, 5000 kb) are not available for hg38; use standard QDNAseq bin sizes instead (1–1000 kb). See the [scAbsolute README](https://github.com/markowetzlab/scAbsolute) for a full description of the limitations and what would be required for complete hg38 support.
+
+
 **Q: My data is single-cell RNAseq not DNAseq. Can I use this workflow?**
 
 **A:** No, this method has been specifically developed for single-cell DNA sequencing data.
