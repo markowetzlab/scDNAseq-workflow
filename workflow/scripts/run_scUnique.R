@@ -133,11 +133,15 @@ focalDifference=2
 if(is.null(change_prob)){
   change_prob = 0.05
 }
-# if both set to 0, do not filter medicc segments
-mediccSizeCutoff=0#5
-mediccDiffAmplitude=0#2
+# if both set to 0, do not filter medicc segments.
+# These environment overrides are intended for high-resolution samples where
+# the unfiltered MEDICC input exhausts memory.
+mediccSizeCutoff=as.numeric(Sys.getenv("MEDICC_SIZE_CUTOFF", "0"))
+mediccDiffAmplitude=as.numeric(Sys.getenv("MEDICC_DIFF_AMPLITUDE", "0"))
+stopifnot(!is.na(mediccSizeCutoff), !is.na(mediccDiffAmplitude))
 
 print(paste0("Change prob: ", change_prob))
+print(paste0("MEDICC segment filter: size <= ", mediccSizeCutoff, "; amplitude <= ", mediccDiffAmplitude))
 windowSize=0
 ## END PARAMETERS
 
@@ -281,7 +285,7 @@ newObjectControlFreq = evidence$objectFreq
 profiles_background_freq = evidence$backgroundFreq
 
 
-df = getMediccTable(newObjectControl, mediccSizeCutoff=0, mediccDiffAmplitude=0) # NOTE, by default accessing copynumber slot!
+df = getMediccTable(newObjectControl, mediccSizeCutoff=mediccSizeCutoff, mediccDiffAmplitude=mediccDiffAmplitude) # NOTE, by default accessing copynumber slot!
 print("Segments for MEDICC run")
 print(nrow(df %>% dplyr::filter(sample_id == unique(df$sample_id)[[1]])))
 print("Samples for MEDICC run")
