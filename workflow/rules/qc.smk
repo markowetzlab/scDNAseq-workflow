@@ -1,6 +1,7 @@
 rule qc:
     input:
-        bam="data/aligned/" + str(config["sampleName"]) + "/{sample}.bam"
+        bam="data/aligned/" + str(config["sampleName"]) + "/{sample}.bam",
+        validated="data/aligned/" + str(config["sampleName"]) + "/.bam_validation.passed"
     output:
         flagstat="data/aligned/" + str(config["sampleName"]) + "/{sample}.flagstat",
         bai="data/aligned/" + str(config["sampleName"]) + "/{sample}.bam.bai"
