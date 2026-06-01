@@ -86,6 +86,38 @@ This command should automatically bind your current working directory into the c
 this repository's code and data which it needs run scAbsolute. If errors are generated related to lacking access to needed code or scripts this problem
 could be resolved by appending ` -B ${PWD}:${PWD}` to `--singularity-args` in the above command.
 
+We also recommend passing `--keep-going` so that a single-cell failure mid-run
+does not abort the whole batch.
+
+### Failure handling and the failed_cells.csv report
+
+The workflow runs a pre-flight `samtools quickcheck` against every BAM listed
+in your sample sheet before any copy-number calling starts. If any BAM is
+truncated or otherwise unreadable, the workflow aborts immediately with the
+full list of offending files, so you can fix them all in one pass (typically
+by re-copying from the source filesystem) instead of discovering failures one
+cell at a time deep into a multi-hour run.
+
+All cell failures across the whole pipeline are recorded in a single canonical
+CSV:
+
+```
+results/<binSize>/<sampleName>_<binSize>_failed_cells.csv
+```
+
+Schema: `name,failure_reason`. Possible `failure_reason` values are:
+
+| Value | Stage | Meaning |
+|---|---|---|
+| `truncated_bam` | pre-flight `validate_bams` | `samtools quickcheck` rejected the BAM (most often an incomplete copy) |
+| `missing_output` | `combine` | The `.rds` for this cell was never produced |
+| `process_crash` | `combine` | The `.rds` exists but is empty / unreadable |
+| (other) | `scAbsolute` | Per-cell QC failures recorded by `scAbsolute` (low coverage, fit failure, etc.) |
+
+After a validation failure, the workflow stops with no `.rds` results. After a
+successful validation but partial downstream failure, the CSV lists only the
+cells that failed in scAbsolute / combine — everything else has a result.
+
 ### QC analysis
 
 Please take the time to analyze the data (the qc script to be used for this step is available at scripts/qc-script.R)

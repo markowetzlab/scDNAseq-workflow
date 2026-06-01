@@ -35,15 +35,16 @@ def helper_dirname(wildcards):
     return os.path.join("results", str(config["binSize"]), filename)
 
 
+include: "rules/validate.smk"
 include: "rules/qc.smk"
 include: "rules/scale_scAbsolute.smk"
 include: "rules/combine.smk"
 
 if config["estimateReadDensity"]:
     include: "rules/density.smk"
-    ruleorder: qc > density > scale_scAbsolute > combine
+    ruleorder: validate_bams > qc > density > scale_scAbsolute > combine
 else:
-    ruleorder: qc > scale_scAbsolute > combine
+    ruleorder: validate_bams > qc > scale_scAbsolute > combine
 
 
 rule all:
