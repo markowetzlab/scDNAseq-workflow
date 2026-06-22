@@ -262,14 +262,24 @@ for(cellname in cellnames){
   
 }
 
-start_time_probeEvidence = Sys.time()
-print(paste0("Run probe evidence (", as.POSIXlt(start_time_probeEvidence), ")"))
-evidence = probe_evidence(newObject, profiles_background,
-                          pvalue_cutoff=pvalue_cutoff, minimum_eventsize=minimum_eventsize, focalDifference = focalDifference,
-                          n_samples=n_samples_lrtest, splitPerChromosome=splitPerChromosome, ncores=ncores, HMMPATH=HMMPATH, BASEDIR=BASEDIR)
+checkpoint_file = file.path(RESULTPATH, "checkpoints",
+  paste0(paste0(lapply(sampleFile, function(x) sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(x))), collapse="+"), ".probe_evidence.rds"))
+dir.create(dirname(checkpoint_file), recursive=TRUE, showWarnings=FALSE)
 
-end_time_probeEvidence = Sys.time()
-print(paste0("Completed probe evidence (", as.POSIXlt(end_time_probeEvidence), ")"))
+if (file.exists(checkpoint_file)) {
+  print(paste0("Loading probe evidence checkpoint: ", checkpoint_file))
+  evidence = readRDS(checkpoint_file)
+} else {
+  start_time_probeEvidence = Sys.time()
+  print(paste0("Run probe evidence (", as.POSIXlt(start_time_probeEvidence), ")"))
+  evidence = probe_evidence(newObject, profiles_background,
+                            pvalue_cutoff=pvalue_cutoff, minimum_eventsize=minimum_eventsize, focalDifference = focalDifference,
+                            n_samples=n_samples_lrtest, splitPerChromosome=splitPerChromosome, ncores=ncores, HMMPATH=HMMPATH, BASEDIR=BASEDIR)
+  end_time_probeEvidence = Sys.time()
+  print(paste0("Completed probe evidence (", as.POSIXlt(end_time_probeEvidence), ")"))
+  saveRDS(evidence, checkpoint_file)
+  print(paste0("Saved probe evidence checkpoint: ", checkpoint_file))
+}
 
 
 newObjectControl = evidence$object

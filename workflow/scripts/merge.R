@@ -88,6 +88,14 @@ if (is.data.frame(readRDS(rdsFiles[[1]]))) {
     adata_names <- colnames(Biobase::assayDataElement(obj, "copynumber"))
     pdata_rownames <- rownames(Biobase::pData(obj))
     if (!identical(adata_names, pdata_rownames)) {
+      # Loud, not silent: if this fires, an upstream object was saved corrupt
+      # (pData rownames diverged from assayData colnames). The root cause is
+      # fixed in run_scAbsolute.R; this repair stays only as a safety net and
+      # should now effectively never trigger.
+      warning(paste0("Repairing sampleName mismatch for cell: ", canonical,
+                     " (assayData='", paste(adata_names, collapse=","),
+                     "' vs pData rowname='", paste(pdata_rownames, collapse=","),
+                     "') -- indicates upstream pData corruption in run_scAbsolute.R"))
       cat("Repairing sampleName mismatch for cell:", canonical, "\n")
       cat("  assayData colname :", adata_names, "\n")
       cat("  pData rowname     :", pdata_rownames, "\n")
