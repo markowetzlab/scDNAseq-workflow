@@ -277,10 +277,24 @@ flagstat_description = readFlagstat(filePaths)
 ## Join descriptive data
 if(!is.null(flagstat_description)){
   flagstat_description$name = as.character(flagstat_description$name)
+  # GUARD: flagstat must be 1 row per cell; a duplicate `name` would multiply
+  # rows in the join and break alignment with the assayData columns.
+  stopifnot(!any(duplicated(flagstat_description$name)))
   description = dplyr::left_join(description, flagstat_description, by="name")
-  rownames(description) = sample_names
+  # dplyr::left_join DROPS rownames (returns integer rownames). Restore by the
+  # identity column `name` (rides WITH each row through any reorder), not by the
+  # detached positional vector `sample_names`. Then assert the row count is
+  # unchanged so a silent corruption becomes a loud, local failure here rather
+  # than a confusing sampleNames-differ crash later in combineQDNASets.
+  stopifnot(nrow(description) == length(sample_names))
+  rownames(description) = description$name
 }
 pData(scaledCN) = description
+
+# Invariant: pData rownames MUST equal assayData colnames, else this object is
+# the corrupt state that merge.R would otherwise have to repair downstream.
+stopifnot(identical(rownames(pData(scaledCN)),
+                    colnames(Biobase::assayDataElement(scaledCN, "copynumber"))))
 
 ## Save data for later processing
 if(!dir.exists(dirname(RESULTPATH))) dir.create(dirname(RESULTPATH), recursive = TRUE)
