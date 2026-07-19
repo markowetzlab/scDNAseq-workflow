@@ -18,6 +18,8 @@ if (interactive()){
 
   addReadPosition = FALSE
 
+  sex = "auto"   # female | male | auto
+
   # options
   binSize = 500
 
@@ -41,9 +43,12 @@ if (interactive()){
   binSize = args[6]
   addReadPosition = as.logical(as.character(args[7]))
 
-  if(length(args) == 9){
-    minPloidy = as.numeric(args[8])
-    maxPloidy = as.numeric(args[9])
+  # sex is passed as arg[8] (female | male | auto); default "auto" if absent
+  sex = if(length(args) >= 8 && !is.na(args[8]) && nzchar(args[8])) args[8] else "auto"
+
+  if(length(args) == 10){
+    minPloidy = as.numeric(args[9])
+    maxPloidy = as.numeric(args[10])
   }else{
     minPloidy = NULL
     maxPloidy = NULL
@@ -129,6 +134,16 @@ if(species == 'Human'){
   selectRegion=c(paste0("chr", as.character(seq(1,19))), "chrX", "chrY")
 } else {
   stop("Species is not supported")
+}
+
+# Sex-aware chrY handling. A female sample has no chrY signal; keeping chrY in
+# selectRegion makes the per-chromosome HMM fit noise and can yield NaN alpha,
+# which nulls hmm.alpha and crashes QC. "female" drops chrY up front; "male"
+# keeps it; "auto" leaves chrY in and relies on scAbsolute's per-cell
+# no-signal handling in copynumberSegmentation() (safe even when sex is unknown).
+if(exists("sex") && is.character(sex) && tolower(sex) == "female"){
+  selectRegion = setdiff(selectRegion, c("chrY", "Y"))
+  ploidyRegion = setdiff(ploidyRegion, c("chrY", "Y"))
 }
 limitPloidy=16
 
