@@ -37,7 +37,8 @@ rule scale_scAbsolute:
                                                                   "{params.filefix}" \
                                                                   "{output.rds}" \
                                                                   "{config[binSize]}" \
-                                                                  "{config[estimateReadDensity]}" || true
+                                                                  "{config[estimateReadDensity]}" \
+                                                                  "{config[sex]}" || true
         else
             Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" \
                                                                   "{config[genome]}" \
@@ -46,6 +47,7 @@ rule scale_scAbsolute:
                                                                   "{output.rds}" \
                                                                   "{config[binSize]}" \
                                                                   "{config[estimateReadDensity]}" \
+                                                                  "{config[sex]}" \
                                                                   "{params.minPloidy}" \
                                                                   "{params.maxPloidy}" || true
         fi
