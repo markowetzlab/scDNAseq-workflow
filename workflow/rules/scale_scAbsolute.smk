@@ -9,6 +9,7 @@ rule scale_scAbsolute:
         filefix=lambda wildcards, input: os.path.basename(input.bam),
         minPloidy=lambda wildcards, input: LOOKUP_PLOIDY[wildcards.sample]["minPloidy"] if wildcards.sample in LOOKUP_PLOIDY else "NNULL",
         maxPloidy=lambda wildcards, input: LOOKUP_PLOIDY[wildcards.sample]["maxPloidy"] if wildcards.sample in LOOKUP_PLOIDY else "NNULL",
+        sex=lambda wildcards, input: config.get("sex", "auto"),
     output:
         rds="results/" + str(config["binSize"]) + "/" + str(config["sampleName"]) + "/" + "{sample}.rds"
     container:
@@ -38,7 +39,7 @@ rule scale_scAbsolute:
                                                                   "{output.rds}" \
                                                                   "{config[binSize]}" \
                                                                   "{config[estimateReadDensity]}" \
-                                                                  "{config[sex]}" || true
+                                                                  "{params.sex}" || true
         else
             Rscript --vanilla "workflow/scripts/run_scAbsolute.R" "{config[species]}" \
                                                                   "{config[genome]}" \
@@ -47,8 +48,8 @@ rule scale_scAbsolute:
                                                                   "{output.rds}" \
                                                                   "{config[binSize]}" \
                                                                   "{config[estimateReadDensity]}" \
-                                                                  "{config[sex]}" \
                                                                   "{params.minPloidy}" \
-                                                                  "{params.maxPloidy}" || true
+                                                                  "{params.maxPloidy}" \
+                                                                  "{params.sex}" || true
         fi
         """

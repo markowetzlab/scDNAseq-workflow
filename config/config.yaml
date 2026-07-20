@@ -3,7 +3,7 @@ samples: config/PEO1_subset.tsv #sample_PEO4.tsv sample_PEO1.tsv
 sampleName: PEO1_subset # PEO4/1 Trial_Human
 binSize: 500 ## single value only - see documentation for valid bin size values
 species: Human ##Mouse
-sex: auto ## female | male | auto  (auto = keep chrY and rely on per-cell no-signal handling; set "female" to exclude chrY up front for a female sample)
+sex: auto ## female | male | auto; used for sex-aware HMM chromosome summaries
 genome: hg19 ##GRCm38 (we do not recommend using Human hg38, as the QC has not been optimized for this genome build, due to limited data availability
 estimateReadDensity : False # flag to include read density estimation for detection of WGD
 # requires additional memory, only useful in cases where WGD is suspected

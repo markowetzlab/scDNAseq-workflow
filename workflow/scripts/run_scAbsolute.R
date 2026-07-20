@@ -43,15 +43,17 @@ if (interactive()){
   binSize = args[6]
   addReadPosition = as.logical(as.character(args[7]))
 
-  # sex is passed as arg[8] (female | male | auto); default "auto" if absent
-  sex = if(length(args) >= 8 && !is.na(args[8]) && nzchar(args[8])) args[8] else "auto"
-
-  if(length(args) == 10){
-    minPloidy = as.numeric(args[9])
-    maxPloidy = as.numeric(args[10])
+  if(length(args) %in% c(9, 10)){
+    minPloidy = as.numeric(args[8])
+    maxPloidy = as.numeric(args[9])
   }else{
     minPloidy = NULL
     maxPloidy = NULL
+  }
+  if(length(args) %in% c(8, 10)){
+    sex = args[length(args)]
+  }else{
+    sex = "auto"
   }
 
   BASEDIR="/opt/scAbsolute"
@@ -107,6 +109,8 @@ optimizeSegmentation=FALSE
 max_iterations=101
 change_prob=1e-3
 max_states=9
+sex = match.arg(tolower(sex), c("auto", "female", "male"))
+print(paste0("Sample sex for HMM summaries: ", sex))
 
 ## Save data for later processing
 if(!dir.exists(dirname(RESULTPATH))) dir.create(dirname(RESULTPATH), recursive = TRUE)
@@ -136,15 +140,6 @@ if(species == 'Human'){
   stop("Species is not supported")
 }
 
-# Sex-aware chrY handling. A female sample has no chrY signal; keeping chrY in
-# selectRegion makes the per-chromosome HMM fit noise and can yield NaN alpha,
-# which nulls hmm.alpha and crashes QC. "female" drops chrY up front; "male"
-# keeps it; "auto" leaves chrY in and relies on scAbsolute's per-cell
-# no-signal handling in copynumberSegmentation() (safe even when sex is unknown).
-if(exists("sex") && is.character(sex) && tolower(sex) == "female"){
-  selectRegion = setdiff(selectRegion, c("chrY", "Y"))
-  ploidyRegion = setdiff(ploidyRegion, c("chrY", "Y"))
-}
 limitPloidy=16
 
 method = "error" # model or error
@@ -172,7 +167,7 @@ scaledCN = scAbsolute(filePaths, method=method, globalModel=globalModel, binSize
            minPloidy=minPloidy, maxPloidy=maxPloidy, ploidyWindow=ploidyWindow, ploidyRegion=ploidyRegion, selectRegion=selectRegion,
            splitPerChromosome=splitPerChromosome, optimizeSegmentation=optimizeSegmentation,
            max_iterations=max_iterations, hmm_path=hmm_path, change_prob=change_prob, max_states=max_states,
-           randomSeed=randomSeed, outputPath=RESULTPATH, outputSegmentation=FALSE, debug=TRUE)
+           randomSeed=randomSeed, outputPath=RESULTPATH, outputSegmentation=FALSE, debug=TRUE, sex=sex)
 
 ## Debugging and examples
 #
@@ -276,6 +271,7 @@ description$limitPloidy = limitPloidy
 description$testStatistic = testStatistic
 description$optimizeSegmentation = optimizeSegmentation
 description$splitPerChromosome = splitPerChromosome
+description$sex = sex
 
 description$n_bins = dim(scaledCN)[[1]]
 description$n_effective_bins = dim(scaledCN)[[1]] - sum(!binsToUseInternal(scaledCN))

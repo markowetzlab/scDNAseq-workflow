@@ -72,6 +72,7 @@ To configure this workflow, modify config/ according to your needs.
 * Add per-sample folder with **coordinate-sorted and duplicate-marked** bam files (one bam file per cell) to data/aligned folder (as with the PEO1/PEO4 folders).
 * Create per sample configuration files to the config folder (one file per sample, see PEO1/PEO4.tsv examples).
 * Edit variables in config/config.yaml as appropriate.
+* Set `sex` in `config/config.yaml` to `female`, `male`, or `auto`. Female mode excludes chrY only from whole-cell HMM summaries; chrY bins and copy-number calls remain in the per-cell object.
 
 ### Per-cell analysis
 
